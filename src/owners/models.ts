@@ -1,6 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { execute } from "../lib/db";
 import { RefreshTokenRow } from "../auth/models";
+import { execute } from "../lib/db";
+import { selectOne } from "../lib/utils";
 
 interface OwnerData {
   id: number;
@@ -15,8 +16,6 @@ interface OwnerData {
 export type OwnerRow = RowDataPacket & OwnerData;
 
 type OwnerCreateInput = Omit<OwnerData, "created_at" | "updated_at" | "id">;
-
-const selectOne = <T>(arr: T[]): T | null => (arr.length === 1 ? arr[0] : null);
 
 export const getOwnerById = async (id: number): Promise<OwnerRow | null> =>
   selectOne(

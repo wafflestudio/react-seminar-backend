@@ -8,6 +8,7 @@ import {
   createRefreshToken,
   verifyAccessToken,
 } from "../lib/tokens";
+import { nullify } from "../lib/utils";
 import {
   getOwnerByRefreshToken,
   getOwnerByUsername,
@@ -15,30 +16,22 @@ import {
 } from "../owners/models";
 import { insertRefreshToken, removeRefreshToken } from "./models";
 
-async function nullify<T>(task: () => Promise<T>): Promise<T | null> {
-  try {
-    return await task();
-  } catch {
-    return null;
-  }
-}
-
 interface OwnerInfo {
   id: number;
   username: string;
-  store_name: string | null;
-  store_description: string | null;
+  store_name?: string;
+  store_description?: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at?: string;
 }
 
 const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
   id: owner.id,
   username: owner.username,
-  store_name: owner.store_name ?? null,
-  store_description: owner.store_description ?? null,
+  store_name: owner.store_name,
+  store_description: owner.store_description,
   created_at: owner.created_at,
-  updated_at: owner.updated_at ?? null,
+  updated_at: owner.updated_at,
 });
 
 interface LoginResult {
