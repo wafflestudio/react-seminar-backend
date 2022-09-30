@@ -27,7 +27,7 @@ export const getOwnerByRefreshToken = async (
 ): Promise<(OwnerRow & RefreshTokenRow) | null> =>
   selectOne(
     await execute<(OwnerRow & RefreshTokenRow)[]>(
-      "SELECT * FROM `owner` RIGHT JOIN RefreshToken RT on `owner`.id = RT.owner_id WHERE refresh_token = ? AND expiry >= NOW()",
+      "SELECT * FROM `owner` RIGHT JOIN `refresh_token` RT on `owner`.id = RT.owner_id WHERE token = ? AND expiry >= NOW()",
       [refresh_token]
     )
   );

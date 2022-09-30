@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `owner`, `menu`, `review`, `refreshtoken`;
+DROP TABLE IF EXISTS `owner`, `menu`, `review`, `refresh_token`;
 
 CREATE TABLE `owner` (
                        id INT AUTO_INCREMENT PRIMARY KEY,
@@ -22,7 +22,7 @@ CREATE TABLE `menu` (
                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                       updated_at TIMESTAMP DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
 
-                      FOREIGN KEY (owner_id) REFERENCES Owner(id)
+                      FOREIGN KEY (owner_id) REFERENCES `owner`(id)
 );
 
 CREATE TABLE `review` (
@@ -34,15 +34,15 @@ CREATE TABLE `review` (
                         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
                         updated_at TIMESTAMP DEFAULT NULL ON UPDATE NOW(),
 
-                        FOREIGN KEY (menu_id) REFERENCES Menu(id),
-                        FOREIGN KEY (author_id) REFERENCES Owner(id)
+                        FOREIGN KEY (menu_id) REFERENCES `menu`(id),
+                        FOREIGN KEY (author_id) REFERENCES `owner`(id)
 );
 
-CREATE TABLE `RefreshToken` (
+CREATE TABLE `refresh_token` (
                               id INT AUTO_INCREMENT PRIMARY KEY,
-                              refresh_token VARCHAR(100) NOT NULL UNIQUE,
+                              token VARCHAR(100) NOT NULL UNIQUE,
                               owner_id INT NOT NULL,
                               expiry TIMESTAMP NOT NULL,
 
-                              FOREIGN KEY (owner_id) REFERENCES Owner(id)
+                              FOREIGN KEY (owner_id) REFERENCES `owner`(id)
 );
