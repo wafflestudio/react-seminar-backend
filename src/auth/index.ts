@@ -1,11 +1,7 @@
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
-import {
-  getAccessToken,
-  getRefreshToken,
-  setRefreshToken,
-} from "../lib/tokens";
+import { raiseInvalidToken } from "../lib/errors";
 import { ownerSchema } from "./schema";
 import { login, logout, me, refresh } from "./service";
 
@@ -35,17 +31,17 @@ const routes: FastifyPluginAsync = async (instance) => {
           username,
           password
         );
-        await setRefreshToken(reply, refresh_token);
-        return reply.send({
+        return reply.withToken(refresh_token).send({
           owner,
           access_token,
         });
       }
     )
     .post("/logout", async (request, reply) => {
-      const refresh_token = getRefreshToken(request);
-      await logout(refresh_token);
-      return reply.status(200).send();
+      const { token } = request;
+      if (!token) raiseInvalidToken();
+      await logout(token);
+      return reply.clearToken().send();
     })
     .post(
       "/refresh",
@@ -59,12 +55,12 @@ const routes: FastifyPluginAsync = async (instance) => {
         },
       },
       async (request, reply) => {
-        const old_refresh_token = getRefreshToken(request);
+        const old_refresh_token = request.token;
+        if (!old_refresh_token) raiseInvalidToken();
         const { access_token, refresh_token } = await refresh(
           old_refresh_token
         );
-        await setRefreshToken(reply, refresh_token);
-        return reply.send({
+        return reply.withToken(refresh_token).send({
           access_token,
         });
       }
@@ -81,7 +77,8 @@ const routes: FastifyPluginAsync = async (instance) => {
         },
       },
       async (request, reply) => {
-        const token = getAccessToken(request);
+        const token = request.token;
+        if (!token) raiseInvalidToken();
         const owner = await me(token);
         return reply.send({ owner });
       }

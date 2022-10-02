@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
 import { raiseInvalidToken } from "./errors";
@@ -47,15 +47,33 @@ export function getAccessToken(request: FastifyRequest): string {
   return token;
 }
 
-export function getRefreshToken(request: FastifyRequest): string {
-  const token = request.cookies[COOKIE_TOKEN_KEY];
-  if (!token) return raiseInvalidToken();
-  return token;
+declare module "fastify" {
+  interface FastifyReply {
+    withToken(token: string): this;
+    clearToken(): this;
+  }
+  interface FastifyRequest {
+    token: string | null;
+  }
 }
 
-export async function setRefreshToken<T extends FastifyReply>(
-  reply: T,
-  token: string
-): Promise<T> {
-  return reply.setCookie(COOKIE_TOKEN_KEY, token, { httpOnly: true });
-}
+export const tokenPlugin: FastifyPluginAsync = async (instance) => {
+  instance.decorateRequest("token", null);
+  instance.addHook("preHandler", async (request) => {
+    request.token = request.cookies[COOKIE_TOKEN_KEY] ?? null;
+    return Promise.resolve();
+  });
+  instance.decorateReply(
+    "withToken",
+    function (this: FastifyReply, token: string) {
+      return this.setCookie(COOKIE_TOKEN_KEY, token, {
+        httpOnly: true,
+        sameSite: "strict",
+      });
+    }
+  );
+  instance.decorateReply("clearToken", function (this: FastifyReply) {
+    return this.clearCookie(COOKIE_TOKEN_KEY);
+  });
+  return Promise.resolve();
+};
