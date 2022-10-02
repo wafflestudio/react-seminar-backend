@@ -2,7 +2,7 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { Connection } from "mysql2/promise";
 import { RefreshTokenRow } from "../auth/tokenModel";
 import { withTransaction } from "../lib/db";
-import { raiseOwnerNotFound } from "../lib/errors";
+import { ownerNotFound } from "../lib/errors";
 import { selectOne } from "../lib/utils";
 
 interface OwnerData {
@@ -20,7 +20,7 @@ export type OwnerRow = RowDataPacket & OwnerData;
 type OwnerCreateInput = Omit<OwnerData, "created_at" | "updated_at" | "id">;
 
 export class OwnerModel {
-  conn: Connection;
+  private readonly conn: Connection;
   constructor(conn: Connection) {
     this.conn = conn;
   }
@@ -56,7 +56,7 @@ export class OwnerModel {
         "UPDATE `owner` SET store_name=? WHERE id=?",
         [storeName, id]
       );
-      if (results.affectedRows !== 1) raiseOwnerNotFound();
+      if (results.affectedRows !== 1) throw ownerNotFound();
     });
   }
 
@@ -66,7 +66,7 @@ export class OwnerModel {
         "UPDATE `owner` SET password=? WHERE id=?",
         [password, id]
       );
-      if (result.affectedRows !== 1) raiseOwnerNotFound();
+      if (result.affectedRows !== 1) throw ownerNotFound();
     });
   }
 
@@ -84,3 +84,21 @@ export class OwnerModel {
     );
   }
 }
+
+export interface OwnerInfo {
+  id: number;
+  username: string;
+  store_name?: string;
+  store_description?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
+  id: owner.id,
+  username: owner.username,
+  store_name: owner.store_name,
+  store_description: owner.store_description,
+  created_at: owner.created_at,
+  updated_at: owner.updated_at,
+});

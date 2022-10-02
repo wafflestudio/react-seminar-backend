@@ -33,14 +33,11 @@ export class BadRequestError extends ErrorWithStatus {
   }
 }
 
-export function raiseInvalidLogin(): never {
-  throw new UnauthorizedError("이름 또는 패스워드가 올바르지 않습니다");
-}
+export const invalidLogin = () =>
+  new UnauthorizedError("이름 또는 패스워드가 올바르지 않습니다");
 
-export function raiseInvalidToken(): never {
-  throw new UnauthorizedError("토큰이 올바르지 않습니다");
-}
+export const invalidToken = () =>
+  new UnauthorizedError("토큰이 올바르지 않습니다");
 
-export function raiseOwnerNotFound(): never {
-  throw new NotFoundError("사장님을 찾을 수 없습니다");
-}
+export const ownerNotFound = () =>
+  new NotFoundError("사장님을 찾을 수 없습니다");

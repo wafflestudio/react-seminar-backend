@@ -1,7 +1,7 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { Connection } from "mysql2/promise";
 import { withTransaction } from "../lib/db";
-import { raiseInvalidToken } from "../lib/errors";
+import { invalidToken } from "../lib/errors";
 import { REFRESH_TOKEN_EXPIRATION } from "../lib/tokens";
 
 export interface RefreshTokenRow extends RowDataPacket {
@@ -24,13 +24,23 @@ export class RefreshTokenModel {
     return result.insertId;
   }
 
+  async checkAndRemove(refresh_token: string, owner_id: number): Promise<void> {
+    await withTransaction(this.conn, async () => {
+      const [{ affectedRows }] = await this.conn.execute<ResultSetHeader>(
+        "DELETE FROM `refresh_token` WHERE token = ? AND owner_id = ? AND expiry >= NOW()",
+        [refresh_token, owner_id]
+      );
+      if (affectedRows !== 0) throw invalidToken();
+    });
+  }
+
   async remove(refresh_token: string): Promise<void> {
     await withTransaction(this.conn, async () => {
       const [{ affectedRows }] = await this.conn.execute<ResultSetHeader>(
         "DELETE FROM `refresh_token` WHERE token = ? AND expiry >= NOW()",
         [refresh_token]
       );
-      if (affectedRows !== 0) raiseInvalidToken();
+      if (affectedRows !== 0) throw invalidToken();
     });
   }
 

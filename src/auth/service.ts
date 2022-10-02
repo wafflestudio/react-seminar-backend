@@ -1,34 +1,11 @@
-import {
-  raiseInvalidLogin,
-  raiseInvalidToken,
-  raiseOwnerNotFound,
-} from "../lib/errors";
+import { invalidLogin, invalidToken, ownerNotFound } from "../lib/errors";
 import {
   createAccessToken,
   createRefreshToken,
   verifyAccessToken,
 } from "../lib/tokens";
-import { nullify } from "../lib/utils";
-import { OwnerModel, OwnerRow } from "../owners/model";
+import { OwnerInfo, OwnerModel, ownerRowToInfo } from "../owners/model";
 import { RefreshTokenModel } from "./tokenModel";
-
-interface OwnerInfo {
-  id: number;
-  username: string;
-  store_name?: string;
-  store_description?: string;
-  created_at: string;
-  updated_at?: string;
-}
-
-const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
-  id: owner.id,
-  username: owner.username,
-  store_name: owner.store_name,
-  store_description: owner.store_description,
-  created_at: owner.created_at,
-  updated_at: owner.updated_at,
-});
 
 interface LoginResult {
   owner: OwnerInfo;
@@ -45,10 +22,10 @@ export class AuthService {
   }
   async login(username: string, password: string): Promise<LoginResult> {
     const owner = await this.ownerModel.getByUsername(username);
-    if (owner?.password !== password) return raiseInvalidLogin();
+    if (owner?.password !== password) throw invalidLogin();
 
     const [access_token, refresh_token] = await Promise.all([
-      createAccessToken(owner.username),
+      createAccessToken(owner.username, owner.id),
       createRefreshToken(),
     ]);
     await this.tokenModel.insert(refresh_token, owner.id);
@@ -60,16 +37,17 @@ export class AuthService {
     };
   }
 
-  async logout(refresh_token: string): Promise<void> {
-    await this.tokenModel.remove(refresh_token);
+  async logout(access_token: string, refresh_token: string): Promise<void> {
+    const { id } = await verifyAccessToken(access_token);
+    await this.tokenModel.checkAndRemove(refresh_token, id);
   }
 
   async refresh(refresh_token: string): Promise<RefreshResult> {
     const ownerToken = await this.ownerModel.getByRefreshToken(refresh_token);
-    if (!ownerToken) return raiseInvalidToken();
+    if (!ownerToken) throw invalidToken();
     await this.tokenModel.remove(refresh_token);
     const [access_token, new_refresh_token] = await Promise.all([
-      createAccessToken(ownerToken.username),
+      createAccessToken(ownerToken.username, ownerToken.owner_id),
       createRefreshToken(),
     ]);
     return {
@@ -79,10 +57,9 @@ export class AuthService {
   }
 
   async me(access_token: string): Promise<OwnerInfo> {
-    const verification = await nullify(() => verifyAccessToken(access_token));
-    if (!verification) return raiseInvalidToken();
-    const owner = await this.ownerModel.getByUsername(verification.username);
-    if (!owner) return raiseOwnerNotFound();
+    const { id } = await verifyAccessToken(access_token);
+    const owner = await this.ownerModel.getById(id);
+    if (!owner) throw ownerNotFound();
     return ownerRowToInfo(owner);
   }
 }

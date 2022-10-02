@@ -3,19 +3,23 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
-import { raiseInvalidToken } from "./errors";
+import { invalidToken } from "./errors";
 
 export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 10; // 10 minutes
 export const REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day
 interface AccessTokenPayload {
   username: string;
+  id: number;
 }
 
 export const COOKIE_TOKEN_KEY = "token";
 
-export const createAccessToken = async (username: string): Promise<string> =>
+export const createAccessToken = async (
+  username: string,
+  id: number
+): Promise<string> =>
   new Promise((resolve, reject) => {
-    const payload: AccessTokenPayload = { username };
+    const payload: AccessTokenPayload = { username, id };
     jsonwebtoken.sign(
       payload,
       JWT_SECRET,
@@ -31,7 +35,7 @@ export const verifyAccessToken = async (
   new Promise((resolve, reject) => {
     jsonwebtoken.verify(token, JWT_SECRET, (error, decoded) =>
       error || !decoded
-        ? reject(error)
+        ? reject(invalidToken())
         : resolve(decoded as AccessTokenPayload & JwtPayload)
     );
   });
@@ -40,11 +44,11 @@ export const createRefreshToken = async () => randomUUID();
 
 export function getAccessToken(request: FastifyRequest): string {
   const authorization = request.headers.authorization;
-  if (!authorization) return raiseInvalidToken();
+  if (!authorization) throw invalidToken();
   const split = authorization.indexOf(" ");
   const schema = authorization.slice(0, split);
   const token = authorization.slice(split + 1).trim();
-  if (schema !== "Bearer") return raiseInvalidToken();
+  if (schema !== "Bearer") throw invalidToken();
   return token;
 }
 
