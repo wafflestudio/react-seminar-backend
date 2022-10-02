@@ -1,8 +1,12 @@
-import { createOwners } from "../src/owners/models";
+import mysql from "mysql2/promise";
+import { mysqlSettings } from "../src/lib/db";
+import { OwnerModel } from "../src/owners/model";
 import students from "./students";
 
 async function main() {
-  await createOwners(
+  const conn = await mysql.createConnection(mysqlSettings);
+  const ownerModel = new OwnerModel(conn);
+  await ownerModel.createMany(
     students.map((student) => ({
       username: student.github_id,
       password: student.github_id,

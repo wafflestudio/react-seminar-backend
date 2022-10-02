@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
-import { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
+import fp from "fastify-plugin";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
 import { raiseInvalidToken } from "./errors";
@@ -57,7 +58,7 @@ declare module "fastify" {
   }
 }
 
-export const tokenPlugin: FastifyPluginAsync = async (instance) => {
+export const tokenPlugin = fp(async (instance) => {
   instance.decorateRequest("token", null);
   instance.addHook("preHandler", async (request) => {
     request.token = request.cookies[COOKIE_TOKEN_KEY] ?? null;
@@ -76,4 +77,4 @@ export const tokenPlugin: FastifyPluginAsync = async (instance) => {
     return this.clearCookie(COOKIE_TOKEN_KEY);
   });
   return Promise.resolve();
-};
+});

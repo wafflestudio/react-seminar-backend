@@ -1,28 +1,23 @@
 import mysql, { Connection } from "mysql2/promise";
-import { MYSQL_USERNAME, MYSQL_PASSWORD, MYSQL_DATABASE } from "./env";
-let connection: Connection | null = null;
+import { MYSQL_DATABASE, MYSQL_PASSWORD, MYSQL_USERNAME } from "./env";
 
-async function getConnection() {
-  if (!connection) {
-    connection = await mysql.createConnection({
-      host: "localhost",
-      user: MYSQL_USERNAME,
-      password: MYSQL_PASSWORD,
-      database: MYSQL_DATABASE,
-    });
-  }
-  return connection;
-}
-
-export const execute = async <
-  T extends mysql.RowDataPacket[] | mysql.ResultSetHeader
->(
-  sql: string,
-  values: (string | number | null)[]
-): Promise<T> => {
-  const conn = await getConnection();
-  const [results] = await conn.execute<T>(sql, values);
-  return results;
+export const mysqlSettings: mysql.ConnectionOptions = {
+  host: "localhost",
+  user: MYSQL_USERNAME,
+  password: MYSQL_PASSWORD,
+  database: MYSQL_DATABASE,
 };
 
-export default getConnection;
+export async function withTransaction(
+  db: Connection,
+  callback: () => Promise<void>
+) {
+  await db.beginTransaction();
+  try {
+    await callback();
+    await db.commit();
+  } catch (e) {
+    await db.rollback();
+    throw e;
+  }
+}

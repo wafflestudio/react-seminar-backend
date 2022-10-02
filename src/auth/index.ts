@@ -3,9 +3,7 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { raiseInvalidToken } from "../lib/errors";
 import { ownerSchema } from "./schema";
-import { login, logout, me, refresh } from "./service";
 
-// eslint-disable-next-line @typescript-eslint/require-await
 const routes: FastifyPluginAsync = async (instance) => {
   instance
     .withTypeProvider<TypeBoxTypeProvider>()
@@ -27,10 +25,8 @@ const routes: FastifyPluginAsync = async (instance) => {
       },
       async (request, reply) => {
         const { username, password } = request.body;
-        const { owner, access_token, refresh_token } = await login(
-          username,
-          password
-        );
+        const { owner, access_token, refresh_token } =
+          await instance.authService.login(username, password);
         return reply.withToken(refresh_token).send({
           owner,
           access_token,
@@ -40,7 +36,7 @@ const routes: FastifyPluginAsync = async (instance) => {
     .post("/logout", async (request, reply) => {
       const { token } = request;
       if (!token) raiseInvalidToken();
-      await logout(token);
+      await instance.authService.logout(token);
       return reply.clearToken().send();
     })
     .post(
@@ -57,9 +53,8 @@ const routes: FastifyPluginAsync = async (instance) => {
       async (request, reply) => {
         const old_refresh_token = request.token;
         if (!old_refresh_token) raiseInvalidToken();
-        const { access_token, refresh_token } = await refresh(
-          old_refresh_token
-        );
+        const { access_token, refresh_token } =
+          await instance.authService.refresh(old_refresh_token);
         return reply.withToken(refresh_token).send({
           access_token,
         });
@@ -79,10 +74,11 @@ const routes: FastifyPluginAsync = async (instance) => {
       async (request, reply) => {
         const token = request.token;
         if (!token) raiseInvalidToken();
-        const owner = await me(token);
+        const owner = await instance.authService.me(token);
         return reply.send({ owner });
       }
     );
+  return Promise.resolve();
 };
 
 export default routes;

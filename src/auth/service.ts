@@ -9,12 +9,8 @@ import {
   verifyAccessToken,
 } from "../lib/tokens";
 import { nullify } from "../lib/utils";
-import {
-  getOwnerByRefreshToken,
-  getOwnerByUsername,
-  OwnerRow,
-} from "../owners/models";
-import { insertRefreshToken, removeRefreshToken } from "./models";
+import { OwnerModel, OwnerRow } from "../owners/model";
+import { RefreshTokenModel } from "./tokenModel";
 
 interface OwnerInfo {
   id: number;
@@ -40,54 +36,58 @@ interface LoginResult {
   refresh_token: string;
 }
 
-export async function login(
-  username: string,
-  password: string
-): Promise<LoginResult> {
-  const owner = await getOwnerByUsername(username);
-  // TODO: password encryption
-  if (owner?.password !== password) return raiseInvalidLogin();
+export class AuthService {
+  private ownerModel: OwnerModel;
+  private tokenModel: RefreshTokenModel;
+  constructor(ownerModel: OwnerModel, tokenModel: RefreshTokenModel) {
+    this.ownerModel = ownerModel;
+    this.tokenModel = tokenModel;
+  }
+  async login(username: string, password: string): Promise<LoginResult> {
+    const owner = await this.ownerModel.getByUsername(username);
+    if (owner?.password !== password) return raiseInvalidLogin();
 
-  const [access_token, refresh_token] = await Promise.all([
-    createAccessToken(owner.username),
-    createRefreshToken(),
-  ]);
-  await insertRefreshToken(refresh_token, owner.id);
+    const [access_token, refresh_token] = await Promise.all([
+      createAccessToken(owner.username),
+      createRefreshToken(),
+    ]);
+    await this.tokenModel.insert(refresh_token, owner.id);
 
-  return {
-    access_token,
-    refresh_token,
-    owner: ownerRowToInfo(owner),
-  };
+    return {
+      access_token,
+      refresh_token,
+      owner: ownerRowToInfo(owner),
+    };
+  }
+
+  async logout(refresh_token: string): Promise<void> {
+    await this.tokenModel.remove(refresh_token);
+  }
+
+  async refresh(refresh_token: string): Promise<RefreshResult> {
+    const ownerToken = await this.ownerModel.getByRefreshToken(refresh_token);
+    if (!ownerToken) return raiseInvalidToken();
+    await this.tokenModel.remove(refresh_token);
+    const [access_token, new_refresh_token] = await Promise.all([
+      createAccessToken(ownerToken.username),
+      createRefreshToken(),
+    ]);
+    return {
+      access_token,
+      refresh_token: new_refresh_token,
+    };
+  }
+
+  async me(access_token: string): Promise<OwnerInfo> {
+    const verification = await nullify(() => verifyAccessToken(access_token));
+    if (!verification) return raiseInvalidToken();
+    const owner = await this.ownerModel.getByUsername(verification.username);
+    if (!owner) return raiseOwnerNotFound();
+    return ownerRowToInfo(owner);
+  }
 }
 
-export async function logout(refresh_token: string): Promise<void> {
-  if (!(await removeRefreshToken(refresh_token))) return raiseInvalidToken();
-}
-
-export interface RefreshResult {
+interface RefreshResult {
   access_token: string;
   refresh_token: string;
-}
-
-export async function refresh(refresh_token: string): Promise<RefreshResult> {
-  const ownerToken = await getOwnerByRefreshToken(refresh_token);
-  if (!ownerToken) return raiseInvalidToken();
-  if (!(await removeRefreshToken(refresh_token))) return raiseInvalidToken();
-  const [access_token, new_refresh_token] = await Promise.all([
-    createAccessToken(ownerToken.username),
-    createRefreshToken(),
-  ]);
-  return {
-    access_token,
-    refresh_token: new_refresh_token,
-  };
-}
-
-export async function me(access_token: string): Promise<OwnerInfo> {
-  const verification = await nullify(() => verifyAccessToken(access_token));
-  if (!verification) return raiseInvalidToken();
-  const owner = await getOwnerByUsername(verification.username);
-  if (!owner) return raiseOwnerNotFound();
-  return ownerRowToInfo(owner);
 }
