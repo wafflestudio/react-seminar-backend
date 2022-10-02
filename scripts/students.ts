@@ -62,7 +62,7 @@ const students: Student[] = [
     name: "이영은",
     github_id: "2-0-is",
   },
-  { name: "이재운", github_id: "theolee72" },
+  { name: "이재운", github_id: "TheoLee72" },
   { name: "임찬솔", github_id: "Limchansol" },
   {
     name: "전윤경",
