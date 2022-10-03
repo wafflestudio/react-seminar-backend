@@ -9,10 +9,10 @@ interface OwnerData {
   id: number;
   username: string;
   password: string;
-  store_name?: string;
-  store_description?: string;
+  store_name: string | null;
+  store_description: string | null;
   created_at: string;
-  updated_at?: string;
+  updated_at: string | null;
 }
 
 const updateStoreInfoInputKeys = ["store_name", "store_description"] as const;
@@ -118,8 +118,8 @@ export interface OwnerInfo {
 export const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
   id: owner.id,
   username: owner.username,
-  store_name: owner.store_name,
-  store_description: owner.store_description,
+  store_name: owner.store_name ?? undefined,
+  store_description: owner.store_description ?? undefined,
   created_at: owner.created_at,
-  updated_at: owner.updated_at,
+  updated_at: owner.updated_at ?? undefined,
 });

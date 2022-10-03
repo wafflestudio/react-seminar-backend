@@ -1,4 +1,9 @@
-import { Type } from "@sinclair/typebox";
+import { Static, TSchema, Type } from "@sinclair/typebox";
+
+export function Nullable<T extends TSchema>(type: T) {
+  type S = Static<T>;
+  return Type.Unsafe<S | null>({ ...type, nullable: true });
+}
 
 export const passwordSchema = Type.String({
   minLength: 1,

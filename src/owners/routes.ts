@@ -15,6 +15,19 @@ const routes: FastifyPluginAsync = async (instance) => {
   instance
     .withTypeProvider<TypeBoxTypeProvider>()
     .get(
+      "/",
+      {
+        schema: {
+          response: { [OK]: Type.Array(ownerSchema) },
+        },
+      },
+      async (request, reply) => {
+        const owners = await instance.ownerService.getAll();
+        request.log.debug(owners[0], "owners[0]");
+        return reply.send(owners);
+      }
+    )
+    .get(
       "/me",
       {
         schema: {
