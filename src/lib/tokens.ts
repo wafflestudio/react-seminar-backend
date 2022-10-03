@@ -12,7 +12,7 @@ interface AccessTokenPayload {
   id: number;
 }
 
-export const COOKIE_TOKEN_KEY = "token";
+export const REFRESH_TOKEN_KEY = "refresh_token";
 
 export const createAccessToken = async (
   username: string,
@@ -42,43 +42,43 @@ export const verifyAccessToken = async (
 // eslint-disable-next-line @typescript-eslint/require-await
 export const createRefreshToken = async () => randomUUID();
 
-export function getAccessToken(request: FastifyRequest): string {
-  const authorization = request.headers.authorization;
-  if (!authorization) throw invalidToken();
-  const split = authorization.indexOf(" ");
-  const schema = authorization.slice(0, split);
-  const token = authorization.slice(split + 1).trim();
-  if (schema !== "Bearer") throw invalidToken();
-  return token;
-}
-
 declare module "fastify" {
   interface FastifyReply {
     withToken(token: string): this;
     clearToken(): this;
   }
   interface FastifyRequest {
-    token: string | null;
+    refreshToken: string | null;
+    getAccessToken(): string | null;
   }
 }
 
 export const tokenPlugin = fp(async (instance) => {
-  instance.decorateRequest("token", null);
+  instance.decorateRequest("refreshToken", null);
   instance.addHook("preHandler", async (request) => {
-    request.token = request.cookies[COOKIE_TOKEN_KEY] ?? null;
+    request.refreshToken = request.cookies[REFRESH_TOKEN_KEY] ?? null;
     return Promise.resolve();
+  });
+  instance.decorateRequest("getAccessToken", function (this: FastifyRequest) {
+    const authorization = this.headers.authorization;
+    if (!authorization) return null;
+    const split = authorization.indexOf(" ");
+    const schema = authorization.slice(0, split);
+    const token = authorization.slice(split + 1).trim();
+    if (schema !== "Bearer") return null;
+    return token;
   });
   instance.decorateReply(
     "withToken",
     function (this: FastifyReply, token: string) {
-      return this.setCookie(COOKIE_TOKEN_KEY, token, {
+      return this.setCookie(REFRESH_TOKEN_KEY, token, {
         httpOnly: true,
         sameSite: "strict",
       });
     }
   );
   instance.decorateReply("clearToken", function (this: FastifyReply) {
-    return this.clearCookie(COOKIE_TOKEN_KEY);
+    return this.clearCookie(REFRESH_TOKEN_KEY);
   });
   return Promise.resolve();
 });

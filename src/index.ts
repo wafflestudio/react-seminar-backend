@@ -1,7 +1,9 @@
 import fastifyCookie from "@fastify/cookie";
+import fastifySwagger from "@fastify/swagger";
 import fastify from "fastify";
 import mysql, { Connection } from "mysql2/promise";
-import auth from "./auth/routes";
+import authRoutes from "./auth/routes";
+import ownersRoutes from "./owners/routes";
 import { RefreshTokenModel } from "./auth/tokenModel";
 import { AuthService } from "./auth/service";
 import { mysqlSettings } from "./lib/db";
@@ -34,10 +36,15 @@ async function main() {
   app.decorate("tokenModel", new RefreshTokenModel(app.db));
   app.decorate("authService", new AuthService(app.ownerModel, app.tokenModel));
   app.decorate("ownerService", new OwnerService(app.ownerModel));
+  await app.register(fastifySwagger, {
+    exposeRoute: true,
+    routePrefix: "docs",
+  });
 
   await app.register(fastifyCookie);
   await app.register(tokenPlugin);
-  await app.register(auth, { prefix: "/auth" });
+  await app.register(authRoutes, { prefix: "/auth" });
+  await app.register(ownersRoutes, { prefix: "owners" });
   await app.listen({ port: 8080 });
 }
 

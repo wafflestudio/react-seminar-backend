@@ -1,3 +1,5 @@
+import { STATUS } from "./utils";
+
 export class ErrorWithStatus extends Error {
   error: string;
   statusCode: number;
@@ -11,25 +13,25 @@ export class ErrorWithStatus extends Error {
 
 export class NotFoundError extends ErrorWithStatus {
   constructor(message?: string) {
-    super(message, "not found", 404);
+    super(message, "not found", STATUS.NOT_FOUND);
   }
 }
 
 export class UnauthorizedError extends ErrorWithStatus {
   constructor(message?: string) {
-    super(message, "unauthorized", 401);
+    super(message, "unauthorized", STATUS.UNAUTHORIZED);
   }
 }
 
 export class AccessDeniedError extends ErrorWithStatus {
   constructor(message?: string) {
-    super(message, "access denied", 403);
+    super(message, "access denied", STATUS.ACCESS_DENIED);
   }
 }
 
 export class BadRequestError extends ErrorWithStatus {
   constructor(message?: string) {
-    super(message, "bad request", 400);
+    super(message, "bad request", STATUS.BAD_REQUEST);
   }
 }
 
@@ -41,3 +43,5 @@ export const invalidToken = () =>
 
 export const ownerNotFound = () =>
   new NotFoundError("사장님을 찾을 수 없습니다");
+
+export const invalidInput = (message?: string) => new BadRequestError(message);

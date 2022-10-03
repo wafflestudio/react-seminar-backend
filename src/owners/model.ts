@@ -2,8 +2,8 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { Connection } from "mysql2/promise";
 import { RefreshTokenRow } from "../auth/tokenModel";
 import { withTransaction } from "../lib/db";
-import { ownerNotFound } from "../lib/errors";
-import { selectOne } from "../lib/utils";
+import { invalidInput, ownerNotFound } from "../lib/errors";
+import { NullableProps, selectOne } from "../lib/utils";
 
 interface OwnerData {
   id: number;
@@ -14,6 +14,11 @@ interface OwnerData {
   created_at: string;
   updated_at?: string;
 }
+
+const updateStoreInfoInputKeys = ["store_name", "store_description"] as const;
+export type UpdateStoreInfoInput = NullableProps<
+  Partial<Pick<OwnerData, typeof updateStoreInfoInputKeys[number]>>
+>;
 
 export type OwnerRow = RowDataPacket & OwnerData;
 
@@ -50,13 +55,22 @@ export class OwnerModel {
     return selectOne(results);
   }
 
-  async updateStoreName(id: number, storeName: string): Promise<void> {
+  async updateStoreInfo(
+    id: number,
+    storeInfo: UpdateStoreInfoInput
+  ): Promise<void> {
+    if (updateStoreInfoInputKeys.every((k) => storeInfo[k] === undefined))
+      throw invalidInput("수정할 사항이 없습니다");
     await withTransaction(this.conn, async () => {
-      const [results] = await this.conn.execute<ResultSetHeader>(
-        "UPDATE `owner` SET store_name=? WHERE id=?",
-        [storeName, id]
-      );
-      if (results.affectedRows !== 1) throw ownerNotFound();
+      for (const key of updateStoreInfoInputKeys) {
+        if (key in storeInfo) {
+          const [results] = await this.conn.execute<ResultSetHeader>(
+            `UPDATE \`owner\` SET ${key}=? WHERE id=?`,
+            [storeInfo[key], id]
+          );
+          if (results.affectedRows !== 1) throw ownerNotFound();
+        }
+      }
     });
   }
 
@@ -83,13 +97,20 @@ export class OwnerModel {
       params
     );
   }
+
+  async getMany(): Promise<OwnerRow[]> {
+    const [results] = await this.conn.query<OwnerRow[]>(
+      "SELECT * FROM `owner`"
+    );
+    return results;
+  }
 }
 
 export interface OwnerInfo {
   id: number;
   username: string;
-  store_name?: string;
-  store_description?: string;
+  store_name: string | null;
+  store_description: string | null;
   created_at: string;
   updated_at?: string;
 }
@@ -97,8 +118,8 @@ export interface OwnerInfo {
 export const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
   id: owner.id,
   username: owner.username,
-  store_name: owner.store_name,
-  store_description: owner.store_description,
+  store_name: owner.store_name ?? null,
+  store_description: owner.store_description ?? null,
   created_at: owner.created_at,
   updated_at: owner.updated_at,
 });
