@@ -24,8 +24,13 @@ export const ownerSchema = Type.Object({
     maxLength: 31,
     pattern: /^[\w-]+$/.source,
   }),
-  store_name: Type.Optional(storeNameSchema),
-  store_description: Type.Optional(storeDescriptionSchema),
+  store_name: Type.Optional(Type.String({ minLength: 1, maxLength: 31 })),
+  store_description: Type.Optional(
+    Type.String({
+      minLength: 1,
+      maxLength: 255,
+    })
+  ),
   created_at: Type.String({ format: "date-time" }),
   updated_at: Type.Optional(Type.String({ format: "date-time" })),
 });
