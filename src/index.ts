@@ -29,7 +29,7 @@ async function main() {
     },
   });
 
-  app.decorate("db", mysql.createConnection(mysqlSettings));
+  app.decorate("db", await mysql.createConnection(mysqlSettings));
   app.decorate("ownerModel", new OwnerModel(app.db));
   app.decorate("tokenModel", new RefreshTokenModel(app.db));
   app.decorate("authService", new AuthService(app.ownerModel, app.tokenModel));
