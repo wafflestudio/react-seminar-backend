@@ -109,8 +109,8 @@ export class OwnerModel {
 export interface OwnerInfo {
   id: number;
   username: string;
-  store_name: string | null;
-  store_description: string | null;
+  store_name?: string;
+  store_description?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -118,8 +118,8 @@ export interface OwnerInfo {
 export const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
   id: owner.id,
   username: owner.username,
-  store_name: owner.store_name ?? null,
-  store_description: owner.store_description ?? null,
+  store_name: owner.store_name,
+  store_description: owner.store_description,
   created_at: owner.created_at,
   updated_at: owner.updated_at,
 });

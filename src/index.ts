@@ -39,6 +39,7 @@ async function main() {
   await app.register(fastifySwagger, {
     exposeRoute: true,
     routePrefix: "docs",
+    logLevel: "debug",
   });
 
   await app.register(fastifyCookie);

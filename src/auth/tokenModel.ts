@@ -30,7 +30,7 @@ export class RefreshTokenModel {
         "DELETE FROM `refresh_token` WHERE token = ? AND owner_id = ? AND expiry >= NOW()",
         [refresh_token, owner_id]
       );
-      if (affectedRows !== 0) throw invalidToken();
+      if (affectedRows !== 1) throw invalidToken();
     });
   }
 
@@ -40,7 +40,7 @@ export class RefreshTokenModel {
         "DELETE FROM `refresh_token` WHERE token = ? AND expiry >= NOW()",
         [refresh_token]
       );
-      if (affectedRows !== 0) throw invalidToken();
+      if (affectedRows !== 1) throw invalidToken();
     });
   }
 

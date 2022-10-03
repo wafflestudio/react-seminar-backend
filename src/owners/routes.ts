@@ -3,7 +3,12 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
 import { STATUS } from "../lib/utils";
-import { ownerSchema, passwordSchema } from "./schema";
+import {
+  ownerSchema,
+  passwordSchema,
+  storeDescriptionSchema,
+  storeNameSchema,
+} from "../schema";
 
 const routes: FastifyPluginAsync = async (instance) => {
   const { NO_CONTENT, OK } = STATUS;
@@ -51,9 +56,20 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/me",
       {
         schema: {
-          body: Type.Partial(
-            Type.Pick(ownerSchema, ["store_name", "store_description"])
-          ),
+          body: Type.Object({
+            store_name: Type.Optional(
+              Type.Union([storeNameSchema, Type.Null()], {
+                description:
+                  "바꿀 때 string, 삭제할 때 null, 그대로 둘 때 not required",
+              })
+            ),
+            store_description: Type.Optional(
+              Type.Union([storeDescriptionSchema, Type.Null()], {
+                description:
+                  "바꿀 때 string, 삭제할 때 null, 그대로 둘 때 not required",
+              })
+            ),
+          }),
           response: {
             [NO_CONTENT]: Type.Void(),
           },

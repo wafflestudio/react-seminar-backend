@@ -13,8 +13,8 @@ export type NullableProps<T> = {
   [P in keyof T]: T[P] | null;
 };
 
-export function never(_x: never): never {
-  throw new Error("unreachable code");
+export function typeChecked<T>(x: T): T {
+  return x;
 }
 
 export const STATUS = {
