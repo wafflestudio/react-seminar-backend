@@ -1,4 +1,4 @@
-import { invalidLogin, invalidToken, ownerNotFound } from "../lib/errors";
+import { invalidLogin, invalidToken } from "../lib/errors";
 import {
   createAccessToken,
   createRefreshToken,
@@ -54,13 +54,6 @@ export class AuthService {
       access_token,
       refresh_token: new_refresh_token,
     };
-  }
-
-  async me(access_token: string): Promise<OwnerInfo> {
-    const { id } = await verifyAccessToken(access_token);
-    const owner = await this.ownerModel.getById(id);
-    if (!owner) throw ownerNotFound();
-    return ownerRowToInfo(owner);
   }
 }
 

@@ -70,24 +70,6 @@ const routes: FastifyPluginAsync = async (instance) => {
           access_token,
         });
       }
-    )
-    .get(
-      "/me",
-      {
-        schema: {
-          response: {
-            200: {
-              owner: ownerSchema,
-            },
-          },
-        },
-      },
-      async (request, reply) => {
-        const token = request.token;
-        if (!token) throw invalidToken();
-        const owner = await instance.authService.me(token);
-        return reply.send({ owner });
-      }
     );
   return Promise.resolve();
 };

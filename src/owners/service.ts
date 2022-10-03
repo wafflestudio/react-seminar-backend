@@ -1,6 +1,6 @@
 import { ownerNotFound } from "../lib/errors";
 import { verifyAccessToken } from "../lib/tokens";
-import { OwnerInfo, OwnerModel } from "./model";
+import { OwnerInfo, OwnerModel, ownerRowToInfo } from "./model";
 
 export class OwnerService {
   private model: OwnerModel;
@@ -33,8 +33,10 @@ export class OwnerService {
     await this.model.updatePassword(id, password);
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async getMenus() {
-    throw new Error("not implemented");
+  async me(access_token: string): Promise<OwnerInfo> {
+    const { id } = await verifyAccessToken(access_token);
+    const owner = await this.model.getById(id);
+    if (!owner) throw ownerNotFound();
+    return ownerRowToInfo(owner);
   }
 }

@@ -1,12 +1,13 @@
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import mysql, { Connection } from "mysql2/promise";
-import auth from "./auth";
+import auth from "./auth/routes";
 import { RefreshTokenModel } from "./auth/tokenModel";
 import { AuthService } from "./auth/service";
 import { mysqlSettings } from "./lib/db";
 import { tokenPlugin } from "./lib/tokens";
 import { OwnerModel } from "./owners/model";
+import { OwnerService } from "./owners/service";
 
 declare module "fastify" {
   export interface FastifyInstance {
@@ -14,6 +15,7 @@ declare module "fastify" {
     ownerModel: OwnerModel;
     tokenModel: RefreshTokenModel;
     authService: AuthService;
+    ownerService: OwnerService;
   }
 }
 
@@ -31,6 +33,7 @@ async function main() {
   app.decorate("ownerModel", new OwnerModel(app.db));
   app.decorate("tokenModel", new RefreshTokenModel(app.db));
   app.decorate("authService", new AuthService(app.ownerModel, app.tokenModel));
+  app.decorate("ownerService", new OwnerService(app.ownerModel));
 
   await app.register(fastifyCookie);
   await app.register(tokenPlugin);
