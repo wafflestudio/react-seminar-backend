@@ -4,7 +4,10 @@
   "scripts": {
     "dev": "nodemon --exec ts-node-esm src/index.ts",
     "init-data": "ts-node-esm scripts/init-data.ts",
-    "make-db-url": "ts-node-esm scripts/make-db-url.ts"
+    "make-db-url": "ts-node-esm scripts/make-db-url.ts",
+    "build": "tsc",
+    "clean": "rm -r build",
+    "start": "node build/index.js"
   },
   "dependencies": {
     "@fastify/cookie": "^8.3.0",
