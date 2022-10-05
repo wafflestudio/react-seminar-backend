@@ -44,4 +44,10 @@ export const invalidToken = () =>
 export const ownerNotFound = () =>
   new NotFoundError("사장님을 찾을 수 없습니다");
 
-export const invalidInput = (message?: string) => new BadRequestError(message);
+export const menuNotFound = () => new NotFoundError("메뉴를 찾을 수 없습니다");
+
+export const nothingToUpdate = () =>
+  new BadRequestError("수정할 사항이 없습니다");
+
+export const notYourMenu = (verb = "변경") =>
+  new AccessDeniedError(`다른 사람의 메뉴를 ${verb}할 수 없습니다`);

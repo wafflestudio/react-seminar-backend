@@ -15,8 +15,10 @@ export type NullableProps<T> = {
   [P in keyof T]: T[P] | null;
 };
 
-export type NullableToUndefined<T> = {
-  [P in keyof T]: T[P] extends null ? NonNullable<T[P]> | undefined : T[P];
+export type NullableToOptional<T> = {
+  [K in keyof T as null extends T[K] ? K : never]?: T[K];
+} & {
+  [K in keyof T as null extends T[K] ? never : K]: T[K];
 };
 
 export function typeChecked<T>(x: T): T {

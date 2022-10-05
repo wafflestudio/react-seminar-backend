@@ -1,5 +1,6 @@
 import { Owner } from "@prisma/client";
 import { Static, Type } from "@sinclair/typebox";
+import { Nullable } from "../lib/utils";
 
 export const passwordSchema = Type.String({
   minLength: 1,
@@ -31,3 +32,24 @@ export const ownerToDto = (owner: Owner): OwnerDto => ({
   created_at: owner.created_at.toISOString(),
   updated_at: owner.updated_at?.toISOString() ?? undefined,
 });
+
+export const updateOwnerSchema = Type.Object({
+  store_name: Type.Optional(Nullable(ownerSchema.properties.store_name)),
+  store_description: Type.Optional(
+    Nullable(ownerSchema.properties.store_description)
+  ),
+});
+
+export const createOwnerSchema = Type.Object({
+  username: ownerSchema.properties.username,
+  password: passwordSchema,
+  store_name: Type.Optional(ownerSchema.properties.store_name),
+  store_description: Type.Optional(ownerSchema.properties.store_description),
+});
+
+export const somthingToUpdateOwner = (input: UpdateOwnerInput) =>
+  input.store_description !== undefined || input.store_name != undefined;
+
+export type UpdateOwnerInput = Static<typeof updateOwnerSchema>;
+
+export type CreateOwnerInput = Static<typeof createOwnerSchema>;

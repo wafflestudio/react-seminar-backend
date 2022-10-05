@@ -1,16 +1,11 @@
-import { Owner, Prisma, PrismaClient } from "@prisma/client";
-import { invalidInput, ownerNotFound } from "../lib/errors";
-import { NullableProps, selectOne } from "../lib/utils";
-
-const updateStoreInfoInputKeys = ["store_name", "store_description"] as const;
-export type UpdateStoreInfoInput = NullableProps<
-  Partial<Pick<Owner, typeof updateStoreInfoInputKeys[number]>>
->;
-
-type OwnerCreateInput = Omit<
-  Prisma.OwnerCreateManyInput,
-  "id" | "created_at" | "updated_at"
->;
+import { Owner, PrismaClient } from "@prisma/client";
+import { nothingToUpdate, ownerNotFound } from "../lib/errors";
+import { selectOne } from "../lib/utils";
+import {
+  CreateOwnerInput,
+  somthingToUpdateOwner,
+  UpdateOwnerInput,
+} from "./schema";
 
 export class OwnerModel {
   private readonly conn: PrismaClient;
@@ -46,10 +41,9 @@ export class OwnerModel {
 
   async updateStoreInfo(
     id: number,
-    storeInfo: UpdateStoreInfoInput
+    storeInfo: UpdateOwnerInput
   ): Promise<void> {
-    if (updateStoreInfoInputKeys.every((k) => storeInfo[k] === undefined))
-      throw invalidInput("수정할 사항이 없습니다");
+    if (!somthingToUpdateOwner(storeInfo)) throw nothingToUpdate();
     await this.conn.owner
       .update({
         where: { id },
@@ -67,7 +61,7 @@ export class OwnerModel {
     });
   }
 
-  async insertMany(inputs: OwnerCreateInput[]): Promise<void> {
+  async insertMany(inputs: CreateOwnerInput[]): Promise<void> {
     await this.conn.owner.createMany({
       data: inputs,
     });

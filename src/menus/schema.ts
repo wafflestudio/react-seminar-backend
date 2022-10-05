@@ -25,7 +25,7 @@ const searchOptionSchema = Type.Partial(
     from: Type.Number(),
     count: Type.Integer({ minimum: 1, maximum: 50, default: 20 }),
     owner: Type.Integer({ description: "가게 주인장 id" }),
-    name: Type.String({
+    search: Type.String({
       description: "메뉴 이름",
       minLength: 1,
       maxLength: 31,
