@@ -2,7 +2,7 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
-import { ownerSchema, passwordSchema } from "../schema";
+import { ownerSchema, passwordSchema } from "../owners/schema";
 
 const routes: FastifyPluginAsync = async (instance) => {
   instance

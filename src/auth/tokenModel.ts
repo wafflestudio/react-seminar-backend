@@ -1,50 +1,52 @@
-import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { Connection } from "mysql2/promise";
-import { withTransaction } from "../lib/db";
+import { PrismaClient } from "@prisma/client";
 import { invalidToken } from "../lib/errors";
 import { REFRESH_TOKEN_EXPIRATION } from "../lib/tokens";
-
-export interface RefreshTokenRow extends RowDataPacket {
-  id: number;
-  token: string;
-  owner_id: number;
-  created_at: string;
-}
+import { selectOne } from "../lib/utils";
 
 export class RefreshTokenModel {
-  conn: Connection;
-  constructor(conn: Connection) {
+  conn: PrismaClient;
+  constructor(conn: PrismaClient) {
     this.conn = conn;
   }
-  async insert(refresh_token: string, owner_id: number): Promise<number> {
-    const [result] = await this.conn.execute<ResultSetHeader>(
-      "INSERT INTO `refresh_token` (token, owner_id, expiry) VALUE (?, ?, NOW() + INTERVAL ? SECOND)",
-      [refresh_token, owner_id, REFRESH_TOKEN_EXPIRATION / 1000]
-    );
-    return result.insertId;
+  async insert(refresh_token: string, owner_id: number): Promise<void> {
+    await this.conn.refreshToken.create({
+      data: {
+        token: refresh_token,
+        owner_id,
+        expiry: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+      },
+    });
   }
 
   async checkAndRemove(refresh_token: string, owner_id: number): Promise<void> {
-    await withTransaction(this.conn, async () => {
-      const [{ affectedRows }] = await this.conn.execute<ResultSetHeader>(
-        "DELETE FROM `refresh_token` WHERE token = ? AND owner_id = ? AND expiry >= NOW()",
-        [refresh_token, owner_id]
-      );
-      if (affectedRows !== 1) throw invalidToken();
-    });
+    const tokenEntity = selectOne(
+      await this.conn.refreshToken.findMany({
+        where: { token: refresh_token, owner_id },
+        select: { id: true },
+      })
+    );
+    if (!tokenEntity) throw invalidToken();
+    await this.conn.refreshToken.delete({ where: { id: tokenEntity.id } });
   }
 
   async remove(refresh_token: string): Promise<void> {
-    await withTransaction(this.conn, async () => {
-      const [{ affectedRows }] = await this.conn.execute<ResultSetHeader>(
-        "DELETE FROM `refresh_token` WHERE token = ? AND expiry >= NOW()",
-        [refresh_token]
-      );
-      if (affectedRows !== 1) throw invalidToken();
-    });
+    const tokenEntity = selectOne(
+      await this.conn.refreshToken.findMany({
+        where: { token: refresh_token },
+        select: { id: true },
+      })
+    );
+    if (!tokenEntity) throw invalidToken();
+    await this.conn.refreshToken.delete({ where: { id: tokenEntity.id } });
   }
 
   async purge(): Promise<void> {
-    await this.conn.query("DELETE FROM `refresh_token` WHERE expiry < NOW()");
+    await this.conn.refreshToken.deleteMany({
+      where: {
+        expiry: {
+          lt: new Date(),
+        },
+      },
+    });
   }
 }

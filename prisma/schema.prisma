@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Owner {
+  id                Int            @id @default(autoincrement())
+  username          String         @unique @db.VarChar(31)
+  password          String         @db.VarChar(255)
+  store_name        String?        @db.VarChar(31) @default(null())
+  store_description String?        @db.VarChar(255) @default(null())
+  created_at        DateTime       @default(now())
+  updated_at        DateTime?      @updatedAt
+  Menu              Menu[]
+  RefreshToken      RefreshToken[]
+  Review            Review[]
+}
+
+model Menu {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(31)
+  owner_id    Int
+  type        MenuType
+  price       Int
+  image       String    @db.VarChar(1023)
+  description String    @db.VarChar(1023)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime? @updatedAt
+
+  owner  Owner    @relation(fields: [owner_id], references: [id])
+  Review Review[]
+}
+
+model RefreshToken {
+  id       Int      @id @default(autoincrement())
+  token    String   @db.VarChar(100)
+  owner_id Int
+  expiry   DateTime
+
+  owner Owner @relation(fields: [owner_id], references: [id])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  menu_id    Int
+  author_id  Int
+  content    String   @db.VarChar(1023)
+  rating     Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  menu   Menu  @relation(fields: [menu_id], references: [id])
+  author Owner @relation(fields: [author_id], references: [id])
+}
+
+enum MenuType {
+  waffle
+  beverage
+  coffee
+  desert
+}

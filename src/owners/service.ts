@@ -1,11 +1,7 @@
 import { ownerNotFound } from "../lib/errors";
 import { verifyAccessToken } from "../lib/tokens";
-import {
-  OwnerInfo,
-  OwnerModel,
-  ownerRowToInfo,
-  UpdateStoreInfoInput,
-} from "./model";
+import { OwnerModel, UpdateStoreInfoInput } from "./model";
+import { OwnerDto, ownerToDto } from "./schema";
 
 export class OwnerService {
   private model: OwnerModel;
@@ -13,15 +9,15 @@ export class OwnerService {
     this.model = model;
   }
 
-  async getAll(): Promise<OwnerInfo[]> {
+  async getAll(): Promise<OwnerDto[]> {
     const owners = await this.model.getMany();
-    return owners.map((owner) => ownerRowToInfo(owner));
+    return owners.map((owner) => ownerToDto(owner));
   }
 
-  async getById(id: number): Promise<OwnerInfo> {
+  async getById(id: number): Promise<OwnerDto> {
     const owner = await this.model.getById(id);
     if (!owner) throw ownerNotFound();
-    return ownerRowToInfo(owner);
+    return ownerToDto(owner);
   }
 
   async updateStoreInfo(access_token: string, storeInfo: UpdateStoreInfoInput) {
@@ -34,10 +30,10 @@ export class OwnerService {
     await this.model.updatePassword(id, password);
   }
 
-  async getMyInfo(access_token: string): Promise<OwnerInfo> {
+  async getMyInfo(access_token: string): Promise<OwnerDto> {
     const { id } = await verifyAccessToken(access_token);
     const owner = await this.model.getById(id);
     if (!owner) throw ownerNotFound();
-    return ownerRowToInfo(owner);
+    return ownerToDto(owner);
   }
 }

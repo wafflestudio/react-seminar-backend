@@ -1,19 +1,18 @@
 import fastifyCookie from "@fastify/cookie";
 import fastifySwagger from "@fastify/swagger";
 import fastify from "fastify";
-import mysql, { Connection } from "mysql2/promise";
 import authRoutes from "./auth/routes";
 import ownersRoutes from "./owners/routes";
 import { RefreshTokenModel } from "./auth/tokenModel";
 import { AuthService } from "./auth/service";
-import { mysqlSettings } from "./lib/db";
 import { tokenPlugin } from "./lib/tokens";
 import { OwnerModel } from "./owners/model";
 import { OwnerService } from "./owners/service";
+import { PrismaClient } from "@prisma/client";
 
 declare module "fastify" {
   export interface FastifyInstance {
-    db: Connection;
+    db: PrismaClient;
     ownerModel: OwnerModel;
     tokenModel: RefreshTokenModel;
     authService: AuthService;
@@ -31,7 +30,7 @@ async function main() {
     },
   });
 
-  app.decorate("db", await mysql.createConnection(mysqlSettings));
+  app.decorate("db", new PrismaClient());
   app.decorate("ownerModel", new OwnerModel(app.db));
   app.decorate("tokenModel", new RefreshTokenModel(app.db));
   app.decorate("authService", new AuthService(app.ownerModel, app.tokenModel));

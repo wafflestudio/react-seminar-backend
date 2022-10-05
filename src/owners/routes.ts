@@ -2,8 +2,8 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
-import { STATUS } from "../lib/utils";
-import { Nullable, ownerSchema, passwordSchema } from "../schema";
+import { Nullable, STATUS } from "../lib/utils";
+import { ownerSchema, passwordSchema } from "./schema";
 
 const routes: FastifyPluginAsync = async (instance) => {
   const { NO_CONTENT, OK } = STATUS;

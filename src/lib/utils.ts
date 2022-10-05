@@ -1,3 +1,5 @@
+import { Static, TSchema, Type } from "@sinclair/typebox";
+
 export async function nullify<T>(task: () => Promise<T>): Promise<T | null> {
   try {
     return await task();
@@ -13,6 +15,10 @@ export type NullableProps<T> = {
   [P in keyof T]: T[P] | null;
 };
 
+export type NullableToUndefined<T> = {
+  [P in keyof T]: T[P] extends null ? NonNullable<T[P]> | undefined : T[P];
+};
+
 export function typeChecked<T>(x: T): T {
   return x;
 }
@@ -26,3 +32,8 @@ export const STATUS = {
   ACCESS_DENIED: 403,
   NOT_FOUND: 404,
 } as const;
+
+export function Nullable<T extends TSchema>(type: T) {
+  type S = Static<T>;
+  return Type.Unsafe<S | null>({ ...type, nullable: true });
+}

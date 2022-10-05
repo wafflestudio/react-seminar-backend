@@ -1,12 +1,11 @@
-import mysql from "mysql2/promise";
-import { mysqlSettings } from "../src/lib/db";
+import { PrismaClient } from "@prisma/client";
 import { OwnerModel } from "../src/owners/model";
 import students from "./students";
 
 async function main() {
-  const conn = await mysql.createConnection(mysqlSettings);
+  const conn = new PrismaClient();
   const ownerModel = new OwnerModel(conn);
-  await ownerModel.createMany(
+  await ownerModel.insertMany(
     students.map((student) => ({
       username: student.github_id,
       password: student.github_id,

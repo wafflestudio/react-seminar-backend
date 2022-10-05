@@ -1,22 +1,10 @@
-import { Static, TSchema, Type } from "@sinclair/typebox";
-
-export function Nullable<T extends TSchema>(type: T) {
-  type S = Static<T>;
-  return Type.Unsafe<S | null>({ ...type, nullable: true });
-}
+import { Owner } from "@prisma/client";
+import { Static, Type } from "@sinclair/typebox";
 
 export const passwordSchema = Type.String({
   minLength: 1,
   maxLength: 255,
 });
-
-export const storeNameSchema = Type.String({ minLength: 1, maxLength: 31 });
-
-export const storeDescriptionSchema = Type.String({
-  minLength: 1,
-  maxLength: 255,
-});
-
 export const ownerSchema = Type.Object({
   id: Type.Integer(),
   username: Type.String({
@@ -33,4 +21,13 @@ export const ownerSchema = Type.Object({
   ),
   created_at: Type.String({ format: "date-time" }),
   updated_at: Type.Optional(Type.String({ format: "date-time" })),
+});
+export type OwnerDto = Static<typeof ownerSchema>;
+export const ownerToDto = (owner: Owner): OwnerDto => ({
+  id: owner.id,
+  username: owner.username,
+  store_name: owner.store_name ?? undefined,
+  store_description: owner.store_description ?? undefined,
+  created_at: owner.created_at.toISOString(),
+  updated_at: owner.updated_at?.toISOString() ?? undefined,
 });

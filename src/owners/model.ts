@@ -1,58 +1,47 @@
-import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { Connection } from "mysql2/promise";
-import { RefreshTokenRow } from "../auth/tokenModel";
-import { withTransaction } from "../lib/db";
+import { Owner, Prisma, PrismaClient } from "@prisma/client";
 import { invalidInput, ownerNotFound } from "../lib/errors";
 import { NullableProps, selectOne } from "../lib/utils";
 
-interface OwnerData {
-  id: number;
-  username: string;
-  password: string;
-  store_name: string | null;
-  store_description: string | null;
-  created_at: string;
-  updated_at: string | null;
-}
-
 const updateStoreInfoInputKeys = ["store_name", "store_description"] as const;
 export type UpdateStoreInfoInput = NullableProps<
-  Partial<Pick<OwnerData, typeof updateStoreInfoInputKeys[number]>>
+  Partial<Pick<Owner, typeof updateStoreInfoInputKeys[number]>>
 >;
 
-export type OwnerRow = RowDataPacket & OwnerData;
-
-type OwnerCreateInput = Omit<OwnerData, "created_at" | "updated_at" | "id">;
+type OwnerCreateInput = Omit<
+  Prisma.OwnerCreateManyInput,
+  "id" | "created_at" | "updated_at"
+>;
 
 export class OwnerModel {
-  private readonly conn: Connection;
-  constructor(conn: Connection) {
+  private readonly conn: PrismaClient;
+  constructor(conn: PrismaClient) {
     this.conn = conn;
   }
-  async getById(id: number): Promise<OwnerRow | null> {
-    const [results] = await this.conn.execute<OwnerRow[]>(
-      "SELECT * FROM `owner` WHERE id = ?",
-      [id]
-    );
-    return selectOne(results);
+  async getById(id: number): Promise<Owner | null> {
+    return this.conn.owner.findUnique({
+      where: { id },
+    });
   }
 
-  async getByRefreshToken(
-    token: string
-  ): Promise<(OwnerRow & RefreshTokenRow) | null> {
-    const [results] = await this.conn.execute<(OwnerRow & RefreshTokenRow)[]>(
-      "SELECT * FROM `owner` RIGHT JOIN `refresh_token` RT on `owner`.id = RT.owner_id WHERE token = ? AND expiry >= NOW()",
-      [token]
+  async getByRefreshToken(token: string): Promise<Owner | null> {
+    return (
+      selectOne(
+        await this.conn.refreshToken.findMany({
+          where: { token },
+          select: {
+            owner: true,
+          },
+        })
+      )?.owner ?? null
     );
-    return selectOne(results);
   }
 
-  async getByUsername(username: string): Promise<OwnerRow | null> {
-    const [results] = await this.conn.execute<OwnerRow[]>(
-      "SELECT * FROM `owner` WHERE username = ?",
-      [username]
+  async getByUsername(username: string): Promise<Owner | null> {
+    return selectOne(
+      await this.conn.owner.findMany({
+        where: { username },
+      })
     );
-    return selectOne(results);
   }
 
   async updateStoreInfo(
@@ -61,65 +50,30 @@ export class OwnerModel {
   ): Promise<void> {
     if (updateStoreInfoInputKeys.every((k) => storeInfo[k] === undefined))
       throw invalidInput("수정할 사항이 없습니다");
-    await withTransaction(this.conn, async () => {
-      for (const key of updateStoreInfoInputKeys) {
-        if (key in storeInfo) {
-          const [results] = await this.conn.execute<ResultSetHeader>(
-            `UPDATE \`owner\` SET ${key}=? WHERE id=?`,
-            [storeInfo[key], id]
-          );
-          if (results.affectedRows !== 1) throw ownerNotFound();
-        }
-      }
-    });
+    await this.conn.owner
+      .update({
+        where: { id },
+        data: storeInfo,
+      })
+      .catch(() => {
+        throw ownerNotFound();
+      });
   }
 
   async updatePassword(id: number, password: string): Promise<void> {
-    await withTransaction(this.conn, async () => {
-      const [result] = await this.conn.execute<ResultSetHeader>(
-        "UPDATE `owner` SET password=? WHERE id=?",
-        [password, id]
-      );
-      if (result.affectedRows !== 1) throw ownerNotFound();
+    await this.conn.owner.update({
+      where: { id },
+      data: { password },
     });
   }
 
-  async createMany(inputs: OwnerCreateInput[]): Promise<void> {
-    const params: (string | null)[] = inputs.flatMap((input) => [
-      input.username,
-      input.password,
-      input.store_name ?? null,
-      input.store_description ?? null,
-    ]);
-    await this.conn.query(
-      "INSERT INTO `owner` (username, password, store_name, store_description) VALUES " +
-        inputs.map(() => "(?, ?, ?, ?)").join(", "),
-      params
-    );
+  async insertMany(inputs: OwnerCreateInput[]): Promise<void> {
+    await this.conn.owner.createMany({
+      data: inputs,
+    });
   }
 
-  async getMany(): Promise<OwnerRow[]> {
-    const [results] = await this.conn.query<OwnerRow[]>(
-      "SELECT * FROM `owner`"
-    );
-    return results;
+  async getMany(): Promise<Owner[]> {
+    return this.conn.owner.findMany();
   }
 }
-
-export interface OwnerInfo {
-  id: number;
-  username: string;
-  store_name?: string;
-  store_description?: string;
-  created_at: string;
-  updated_at?: string;
-}
-
-export const ownerRowToInfo = (owner: OwnerRow): OwnerInfo => ({
-  id: owner.id,
-  username: owner.username,
-  store_name: owner.store_name ?? undefined,
-  store_description: owner.store_description ?? undefined,
-  created_at: owner.created_at,
-  updated_at: owner.updated_at ?? undefined,
-});

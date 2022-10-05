@@ -4,11 +4,12 @@ import {
   createRefreshToken,
   verifyAccessToken,
 } from "../lib/tokens";
-import { OwnerInfo, OwnerModel, ownerRowToInfo } from "../owners/model";
+import { OwnerModel } from "../owners/model";
+import { OwnerDto, ownerToDto } from "../owners/schema";
 import { RefreshTokenModel } from "./tokenModel";
 
 interface LoginResult {
-  owner: OwnerInfo;
+  owner: OwnerDto;
   access_token: string;
   refresh_token: string;
 }
@@ -33,7 +34,7 @@ export class AuthService {
     return {
       access_token,
       refresh_token,
-      owner: ownerRowToInfo(owner),
+      owner: ownerToDto(owner),
     };
   }
 
@@ -43,11 +44,11 @@ export class AuthService {
   }
 
   async refresh(refresh_token: string): Promise<RefreshResult> {
-    const ownerToken = await this.ownerModel.getByRefreshToken(refresh_token);
-    if (!ownerToken) throw invalidToken();
+    const owner = await this.ownerModel.getByRefreshToken(refresh_token);
+    if (!owner) throw invalidToken();
     await this.tokenModel.remove(refresh_token);
     const [access_token, new_refresh_token] = await Promise.all([
-      createAccessToken(ownerToken.username, ownerToken.owner_id),
+      createAccessToken(owner.username, owner.id),
       createRefreshToken(),
     ]);
     return {
