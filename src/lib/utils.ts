@@ -1,4 +1,4 @@
-import { Static, TSchema, Type } from "@sinclair/typebox";
+import { Static, TObject, TSchema, Type } from "@sinclair/typebox";
 
 export async function nullify<T>(task: () => Promise<T>): Promise<T | null> {
   try {
@@ -38,4 +38,18 @@ export const STATUS = {
 export function Nullable<T extends TSchema>(type: T) {
   type S = Static<T>;
   return Type.Unsafe<S | null>({ ...type, nullable: true });
+}
+
+export function AtLeastOneProp<T extends TObject>(type: T) {
+  type S = Static<T>;
+  const { required, description, ...rest } = type;
+  return Type.Unsafe<Partial<S>>({
+    ...rest,
+    description:
+      (description ? description + "; " : "") +
+      "props 중 적어도 하나는 들어있어야 함",
+    anyOf: Object.keys(type.properties).map((k) => ({
+      required: [k],
+    })),
+  });
 }

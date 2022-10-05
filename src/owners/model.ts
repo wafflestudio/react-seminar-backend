@@ -1,11 +1,7 @@
 import { Owner, PrismaClient } from "@prisma/client";
-import { nothingToUpdate, ownerNotFound } from "../lib/errors";
+import { ownerNotFound } from "../lib/errors";
 import { selectOne } from "../lib/utils";
-import {
-  CreateOwnerInput,
-  somthingToUpdateOwner,
-  UpdateOwnerInput,
-} from "./schema";
+import { CreateOwnerInput, UpdateOwnerInput } from "./schema";
 
 export class OwnerModel {
   private readonly conn: PrismaClient;
@@ -43,7 +39,6 @@ export class OwnerModel {
     id: number,
     storeInfo: UpdateOwnerInput
   ): Promise<void> {
-    if (!somthingToUpdateOwner(storeInfo)) throw nothingToUpdate();
     await this.conn.owner
       .update({
         where: { id },
@@ -55,10 +50,14 @@ export class OwnerModel {
   }
 
   async updatePassword(id: number, password: string): Promise<void> {
-    await this.conn.owner.update({
-      where: { id },
-      data: { password },
-    });
+    await this.conn.owner
+      .update({
+        where: { id },
+        data: { password },
+      })
+      .catch(() => {
+        throw ownerNotFound();
+      });
   }
 
   async insertMany(inputs: CreateOwnerInput[]): Promise<void> {

@@ -2,8 +2,8 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
-import { Nullable, STATUS } from "../lib/utils";
-import { ownerSchema, passwordSchema } from "./schema";
+import { STATUS } from "../lib/utils";
+import { ownerSchema, passwordSchema, updateOwnerSchema } from "./schema";
 
 const routes: FastifyPluginAsync = async (instance) => {
   const { NO_CONTENT, OK } = STATUS;
@@ -34,9 +34,9 @@ const routes: FastifyPluginAsync = async (instance) => {
         },
       },
       async (request, reply) => {
-        const token = request.getAccessToken();
-        if (!token) throw invalidToken();
-        const owner = await instance.ownerService.getMyInfo(token);
+        const owner = await instance.ownerService.getMyInfo(
+          request.getAccessToken()
+        );
         return reply.send({ owner });
       }
     )
@@ -64,14 +64,7 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/me",
       {
         schema: {
-          body: Type.Object({
-            store_name: Type.Optional(
-              Nullable(ownerSchema.properties.store_name)
-            ),
-            store_description: Type.Optional(
-              Nullable(ownerSchema.properties.store_description)
-            ),
-          }),
+          body: updateOwnerSchema,
           response: {
             [NO_CONTENT]: Type.Void(),
           },
@@ -97,10 +90,8 @@ const routes: FastifyPluginAsync = async (instance) => {
         },
       },
       async (request, reply) => {
-        const access_token = request.getAccessToken();
-        if (!access_token) throw invalidToken();
         await instance.ownerService.updatePassword(
-          access_token,
+          request.getAccessToken(),
           request.body.password
         );
         return reply.status(NO_CONTENT).send();

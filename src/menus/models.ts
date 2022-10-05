@@ -1,5 +1,6 @@
-import { Menu, Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { SearchMenuOption, MenuWithOwner, CreateMenuInput } from "./schema";
+import { menuNotFound } from "../lib/errors";
 
 export class MenuModel {
   private readonly conn: PrismaClient;
@@ -42,20 +43,44 @@ export class MenuModel {
     });
   }
 
-  async getById(id: number): Promise<Menu | null> {
-    return this.conn.menu.findUnique({ where: { id } });
+  async getById(id: number): Promise<MenuWithOwner | null> {
+    return this.conn.menu.findUnique({
+      where: { id },
+      include: { owner: true },
+    });
   }
 
-  async update(id: number, menu: Prisma.MenuUpdateInput): Promise<Menu> {
-    return this.conn.menu.update({
-      data: menu,
-      where: { id },
+  async checkOwner(menu_id: number, owner_id: number): Promise<boolean> {
+    const menu = await this.conn.menu.findUnique({
+      where: { id: menu_id },
+      select: { owner_id: true },
     });
+    if (!menu) throw menuNotFound();
+    return menu.owner_id === owner_id;
+  }
+
+  async update(
+    id: number,
+    menu: Prisma.MenuUpdateInput
+  ): Promise<MenuWithOwner> {
+    return this.conn.menu
+      .update({
+        data: menu,
+        where: { id },
+        include: { owner: true },
+      })
+      .catch(() => {
+        throw menuNotFound();
+      });
   }
 
   async remove(id: number): Promise<void> {
-    await this.conn.menu.delete({
-      where: { id },
-    });
+    await this.conn.menu
+      .delete({
+        where: { id },
+      })
+      .catch(() => {
+        throw menuNotFound();
+      });
   }
 }

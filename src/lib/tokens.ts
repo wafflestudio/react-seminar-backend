@@ -39,7 +39,7 @@ export const verifyAccessToken = async (
         : resolve(decoded as AccessTokenPayload & JwtPayload)
     );
   });
-// eslint-disable-next-line @typescript-eslint/require-await
+
 export const createRefreshToken = async () => randomUUID();
 
 declare module "fastify" {
@@ -49,7 +49,7 @@ declare module "fastify" {
   }
   interface FastifyRequest {
     refreshToken: string | null;
-    getAccessToken(): string | null;
+    getAccessToken(): string;
   }
 }
 
@@ -61,11 +61,11 @@ export const tokenPlugin = fp(async (instance) => {
   });
   instance.decorateRequest("getAccessToken", function (this: FastifyRequest) {
     const authorization = this.headers.authorization;
-    if (!authorization) return null;
+    if (!authorization) throw invalidToken();
     const split = authorization.indexOf(" ");
     const schema = authorization.slice(0, split);
     const token = authorization.slice(split + 1).trim();
-    if (schema !== "Bearer") return null;
+    if (schema !== "Bearer") throw invalidToken();
     return token;
   });
   instance.decorateReply(
@@ -80,5 +80,4 @@ export const tokenPlugin = fp(async (instance) => {
   instance.decorateReply("clearToken", function (this: FastifyReply) {
     return this.clearCookie(REFRESH_TOKEN_KEY);
   });
-  return Promise.resolve();
 });

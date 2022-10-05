@@ -1,8 +1,9 @@
 import { Static, Type } from "@sinclair/typebox";
 import { ownerSchema, ownerToDto } from "../owners/schema";
 import { Menu, Owner } from "@prisma/client";
+import { AtLeastOneProp, Nullable } from "../lib/utils";
 
-const menuSchema = Type.Object({
+export const menuSchema = Type.Object({
   id: Type.Integer(),
   name: Type.String({ minLength: 1, maxLength: 31 }),
   type: Type.Enum({
@@ -20,9 +21,9 @@ const menuSchema = Type.Object({
   updated_at: Type.Optional(Type.String({ format: "date-time" })),
   owner: ownerSchema,
 });
-const searchMenuOptionSchema = Type.Partial(
+export const searchMenuOptionSchema = Type.Partial(
   Type.Object({
-    from: Type.Number(),
+    from: Type.Integer({ description: "next로 들어오는 값을 넣으시오" }),
     count: Type.Integer({
       minimum: 1,
       maximum: 50,
@@ -38,16 +39,28 @@ const searchMenuOptionSchema = Type.Partial(
     type: menuSchema.properties.type,
   })
 );
-const createMenuSchema = Type.Object({
+export const createMenuSchema = Type.Object({
   name: menuSchema.properties.name,
   type: menuSchema.properties.type,
   price: menuSchema.properties.price,
   image: menuSchema.properties.image,
   description: menuSchema.properties.description,
 });
+
+export const editMenuSchema = AtLeastOneProp(
+  Type.Object({
+    price: menuSchema.properties.price,
+    image: Nullable(menuSchema.properties.image),
+    description: Nullable(menuSchema.properties.description),
+  })
+);
+export const paginationAnchor = Type.Integer({
+  description: "이 값을 from에 넣으면 다음 페이지를 불러온다",
+});
 export type SearchMenuOption = Static<typeof searchMenuOptionSchema>;
 export type MenuDto = Static<typeof menuSchema>;
 export type CreateMenuInput = Static<typeof createMenuSchema>;
+export type EditMenuInput = Static<typeof editMenuSchema>;
 
 export const menuToDto = (menu: MenuWithOwner): MenuDto => ({
   id: menu.id,
