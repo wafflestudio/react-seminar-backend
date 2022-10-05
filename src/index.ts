@@ -43,6 +43,11 @@ async function main() {
       routePrefix: "docs",
       logLevel: "debug",
       openapi: {
+        info: {
+          title: "Wafl Studio API",
+          description: "와플스튜디오 2022 리액트 세미나 과제를 위한 백엔드",
+          version: "1.0",
+        },
         components: {
           securitySchemes: {
             bearer: {
