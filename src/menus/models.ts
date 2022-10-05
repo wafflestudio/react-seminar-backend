@@ -1,5 +1,5 @@
 import { Menu, Prisma, PrismaClient } from "@prisma/client";
-import { SearchOption } from "./schema";
+import { SearchMenuOption, MenuWithOwner, CreateMenuInput } from "./schema";
 
 export class MenuModel {
   private readonly conn: PrismaClient;
@@ -8,9 +8,9 @@ export class MenuModel {
     this.conn = conn;
   }
 
-  async getMany(option?: SearchOption): Promise<Menu[]> {
+  async getMany(option?: SearchMenuOption): Promise<MenuWithOwner[]> {
     const from = new Date(option?.from ?? Date.now());
-    const count = option?.count ?? 20;
+    const count = option?.count;
     const type = option?.type;
     const search = option?.search;
     const owner = option?.owner;
@@ -27,9 +27,18 @@ export class MenuModel {
     });
   }
 
-  async create(menu: Prisma.MenuCreateInput): Promise<Menu> {
+  async create(
+    owner_id: number,
+    menu: CreateMenuInput
+  ): Promise<MenuWithOwner> {
     return this.conn.menu.create({
-      data: menu,
+      data: {
+        ...menu,
+        owner: {
+          connect: { id: owner_id },
+        },
+      },
+      include: { owner: true },
     });
   }
 

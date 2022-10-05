@@ -26,8 +26,8 @@ model Menu {
   owner_id    Int
   type        MenuType
   price       Int
-  image       String    @db.VarChar(1023)
-  description String    @db.VarChar(1023)
+  image       String?    @db.VarChar(1023)
+  description String?   @db.VarChar(1023)
   created_at  DateTime  @default(now())
   updated_at  DateTime? @updatedAt
 
