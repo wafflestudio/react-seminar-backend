@@ -34,6 +34,7 @@ export const ownerSchema = Type.Object(
   },
   { $id: "Owner" }
 );
+export const ownerRef = Type.Ref(ownerSchema);
 
 export type OwnerDto = Static<typeof ownerSchema>;
 export const ownerToDto = (owner: Owner): OwnerDto => ({

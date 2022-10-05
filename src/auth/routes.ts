@@ -2,7 +2,7 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
-import { ownerSchema, passwordSchema } from "../owners/schema";
+import { ownerRef, ownerSchema, passwordSchema } from "../owners/schema";
 import { bearerSecurity } from "./schema";
 import { STATUS } from "../lib/utils";
 
@@ -20,7 +20,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           }),
           response: {
             [OK]: Type.Object({
-              owner: ownerSchema,
+              owner: ownerRef,
               access_token: Type.String(),
             }),
           },

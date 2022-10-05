@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import {
   createMenuSchema,
   editMenuSchema,
+  menuRef,
   menuSchema,
   paginationAnchor,
   searchMenuOptionSchema,
@@ -20,7 +21,7 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
           querystring: searchMenuOptionSchema,
           response: {
             [OK]: Type.Object({
-              data: Type.Array(menuSchema),
+              data: Type.Array(menuRef),
               next: paginationAnchor,
             }),
           },
@@ -35,9 +36,9 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
       "/:id",
       {
         schema: {
-          params: Type.Object({ id: Type.Integer() }),
+          params: Type.Object({ id: menuSchema.properties.id }),
           response: {
-            [OK]: menuSchema,
+            [OK]: menuRef,
           },
         },
       },
@@ -47,14 +48,13 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
       }
     )
     .post(
-      "/:id",
+      "/",
       {
         schema: {
           security: [bearerSecurity],
-          params: Type.Object({ id: Type.Integer() }),
           body: createMenuSchema,
           response: {
-            [OK]: menuSchema,
+            [OK]: menuRef,
           },
         },
       },
@@ -71,10 +71,10 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
       {
         schema: {
           security: [bearerSecurity],
-          params: Type.Object({ id: Type.Integer() }),
+          params: Type.Object({ id: menuSchema.properties.id }),
           body: editMenuSchema,
           response: {
-            [OK]: menuSchema,
+            [OK]: menuRef,
           },
         },
       },
@@ -92,7 +92,7 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
       {
         schema: {
           security: [bearerSecurity],
-          params: Type.Object({ id: Type.Integer() }),
+          params: Type.Object({ id: menuSchema.properties.id }),
           response: {
             [OK]: Type.Void(),
           },

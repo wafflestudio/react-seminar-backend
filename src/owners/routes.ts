@@ -3,7 +3,12 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
 import { STATUS } from "../lib/utils";
-import { ownerSchema, passwordSchema, updateOwnerSchema } from "./schema";
+import {
+  ownerRef,
+  ownerSchema,
+  passwordSchema,
+  updateOwnerSchema,
+} from "./schema";
 import { bearerSecurity } from "../auth/schema";
 
 const routes: FastifyPluginAsync = async (instance) => {
@@ -14,7 +19,7 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/",
       {
         schema: {
-          response: { [OK]: Type.Array(ownerSchema) },
+          response: { [OK]: Type.Array(ownerRef) },
           security: [bearerSecurity],
         },
       },
@@ -31,7 +36,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           security: [bearerSecurity],
           response: {
             [OK]: Type.Object({
-              owner: ownerSchema,
+              owner: ownerRef,
             }),
           },
         },
@@ -48,11 +53,11 @@ const routes: FastifyPluginAsync = async (instance) => {
       {
         schema: {
           params: Type.Object({
-            id: Type.Integer(),
+            id: ownerSchema.properties.id,
           }),
           response: {
             [OK]: Type.Object({
-              owner: ownerSchema,
+              owner: ownerRef,
             }),
           },
         },
@@ -70,7 +75,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           security: [bearerSecurity],
           body: updateOwnerSchema,
           response: {
-            [OK]: ownerSchema,
+            [OK]: ownerRef,
           },
         },
       },

@@ -12,6 +12,8 @@ import { OwnerService } from "./owners/service";
 import { PrismaClient } from "@prisma/client";
 import { MenuModel } from "./menus/models";
 import { MenuService } from "./menus/service";
+import { ownerSchema } from "./owners/schema";
+import { menuSchema } from "./menus/schema";
 
 declare module "fastify" {
   export interface FastifyInstance {
@@ -58,6 +60,8 @@ async function main() {
     app.register(menuRoutes, { prefix: "/menus" }),
   ]);
 
+  app.addSchema(ownerSchema);
+  app.addSchema(menuSchema);
   app.decorate("db", new PrismaClient());
   app.decorate("ownerModel", new OwnerModel(app.db));
   app.decorate("tokenModel", new RefreshTokenModel(app.db));
