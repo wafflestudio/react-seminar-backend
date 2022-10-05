@@ -38,8 +38,8 @@ export class OwnerModel {
   async updateStoreInfo(
     id: number,
     storeInfo: UpdateOwnerInput
-  ): Promise<void> {
-    await this.conn.owner
+  ): Promise<Owner> {
+    return await this.conn.owner
       .update({
         where: { id },
         data: storeInfo,

@@ -4,9 +4,10 @@ import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
 import { STATUS } from "../lib/utils";
 import { ownerSchema, passwordSchema, updateOwnerSchema } from "./schema";
+import { bearerSecurity } from "../auth/schema";
 
 const routes: FastifyPluginAsync = async (instance) => {
-  const { NO_CONTENT, OK } = STATUS;
+  const { OK } = STATUS;
   instance
     .withTypeProvider<TypeBoxTypeProvider>()
     .get(
@@ -14,6 +15,7 @@ const routes: FastifyPluginAsync = async (instance) => {
       {
         schema: {
           response: { [OK]: Type.Array(ownerSchema) },
+          security: [bearerSecurity],
         },
       },
       async (request, reply) => {
@@ -26,6 +28,7 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/me",
       {
         schema: {
+          security: [bearerSecurity],
           response: {
             [OK]: Type.Object({
               owner: ownerSchema,
@@ -64,28 +67,33 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/me",
       {
         schema: {
+          security: [bearerSecurity],
           body: updateOwnerSchema,
           response: {
-            [NO_CONTENT]: Type.Void(),
+            [OK]: ownerSchema,
           },
         },
       },
       async (request, reply) => {
         const access_token = request.getAccessToken();
         if (!access_token) throw invalidToken();
-        await instance.ownerService.updateStoreInfo(access_token, request.body);
-        return reply.status(NO_CONTENT).send();
+        const result = await instance.ownerService.updateStoreInfo(
+          access_token,
+          request.body
+        );
+        return reply.send(result);
       }
     )
     .put(
       "/me/password",
       {
         schema: {
+          security: [bearerSecurity],
           body: Type.Object({
             password: passwordSchema,
           }),
           response: {
-            [NO_CONTENT]: Type.Void(),
+            [OK]: Type.Void(),
           },
         },
       },
@@ -94,7 +102,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           request.getAccessToken(),
           request.body.password
         );
-        return reply.status(NO_CONTENT).send();
+        return reply.send();
       }
     );
 };

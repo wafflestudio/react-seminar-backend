@@ -3,8 +3,11 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { invalidToken } from "../lib/errors";
 import { ownerSchema, passwordSchema } from "../owners/schema";
+import { bearerSecurity } from "./schema";
+import { STATUS } from "../lib/utils";
 
 const routes: FastifyPluginAsync = async (instance) => {
+  const { OK } = STATUS;
   instance
     .withTypeProvider<TypeBoxTypeProvider>()
     .post(
@@ -16,7 +19,7 @@ const routes: FastifyPluginAsync = async (instance) => {
             password: passwordSchema,
           }),
           response: {
-            200: Type.Object({
+            [OK]: Type.Object({
               owner: ownerSchema,
               access_token: Type.String(),
             }),
@@ -33,19 +36,30 @@ const routes: FastifyPluginAsync = async (instance) => {
         });
       }
     )
-    .post("/logout", async (request, reply) => {
-      const refresh_token = request.refreshToken;
-      const access_token = request.getAccessToken();
-      if (!refresh_token || !access_token) throw invalidToken();
-      await instance.authService.logout(access_token, refresh_token);
-      return reply.clearToken().send();
-    })
+    .post(
+      "/logout",
+      {
+        schema: {
+          security: [bearerSecurity],
+          response: {
+            [OK]: Type.Void(),
+          },
+        },
+      },
+      async (request, reply) => {
+        const refresh_token = request.refreshToken;
+        const access_token = request.getAccessToken();
+        if (!refresh_token || !access_token) throw invalidToken();
+        await instance.authService.logout(access_token, refresh_token);
+        return reply.clearToken().send();
+      }
+    )
     .post(
       "/refresh",
       {
         schema: {
           response: {
-            200: Type.Object({
+            [OK]: Type.Object({
               access_token: Type.String(),
             }),
           },

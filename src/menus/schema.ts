@@ -5,18 +5,38 @@ import { AtLeastOneProp, Nullable } from "../lib/utils";
 
 export const menuSchema = Type.Object({
   id: Type.Integer(),
-  name: Type.String({ minLength: 1, maxLength: 31 }),
+  name: Type.String({
+    minLength: 1,
+    maxLength: 31,
+    examples: ["딸기생크림와플"],
+  }),
   type: Type.Enum({
     waffle: "waffle",
     beverage: "beverage",
     coffee: "coffee",
     desert: "desert",
   } as const),
-  price: Type.Integer({ minimum: 10, maximum: 1000000, multipleOf: 10 }),
+  price: Type.Integer({
+    minimum: 10,
+    maximum: 1000000,
+    multipleOf: 10,
+    examples: [5000],
+  }),
   image: Type.Optional(
-    Type.String({ minLength: 1, maxLength: 1023, format: "uri" })
+    Type.String({
+      minLength: 1,
+      maxLength: 1023,
+      format: "uri",
+      examples: ["https://example.com/foo.png"],
+    })
   ),
-  description: Type.Optional(Type.String({ minLength: 1, maxLength: 1023 })),
+  description: Type.Optional(
+    Type.String({
+      minLength: 1,
+      maxLength: 1023,
+      examples: ["맛있는 전설이 깃든 와플"],
+    })
+  ),
   created_at: Type.String({ format: "date-time" }),
   updated_at: Type.Optional(Type.String({ format: "date-time" })),
   owner: ownerSchema,

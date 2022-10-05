@@ -1,5 +1,6 @@
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
 import {
+  createMenuSchema,
   editMenuSchema,
   menuSchema,
   paginationAnchor,
@@ -7,6 +8,7 @@ import {
 } from "./schema";
 import { STATUS } from "../lib/utils";
 import { Type } from "@sinclair/typebox";
+import { bearerSecurity } from "../auth/schema";
 
 const routes: FastifyPluginAsyncTypebox = async (instance) => {
   const { OK } = STATUS;
@@ -44,10 +46,31 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
         return reply.send(menu);
       }
     )
+    .post(
+      "/:id",
+      {
+        schema: {
+          security: [bearerSecurity],
+          params: Type.Object({ id: Type.Integer() }),
+          body: createMenuSchema,
+          response: {
+            [OK]: menuSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const menu = await instance.menuService.create(
+          request.getAccessToken(),
+          request.body
+        );
+        return reply.send(menu);
+      }
+    )
     .patch(
       "/:id",
       {
         schema: {
+          security: [bearerSecurity],
           params: Type.Object({ id: Type.Integer() }),
           body: editMenuSchema,
           response: {
@@ -68,6 +91,7 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
       "/:id",
       {
         schema: {
+          security: [bearerSecurity],
           params: Type.Object({ id: Type.Integer() }),
           response: {
             [OK]: Type.Void(),

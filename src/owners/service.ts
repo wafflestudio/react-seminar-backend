@@ -20,9 +20,13 @@ export class OwnerService {
     return ownerToDto(owner);
   }
 
-  async updateStoreInfo(access_token: string, storeInfo: UpdateOwnerInput) {
+  async updateStoreInfo(
+    access_token: string,
+    storeInfo: UpdateOwnerInput
+  ): Promise<OwnerDto> {
     const { id } = await verifyAccessToken(access_token);
-    await this.model.updateStoreInfo(id, storeInfo);
+    const result = await this.model.updateStoreInfo(id, storeInfo);
+    return ownerToDto(result);
   }
 
   async updatePassword(access_token: string, password: string): Promise<void> {

@@ -4,7 +4,7 @@ import fastify from "fastify";
 import authRoutes from "./auth/routes";
 import ownersRoutes from "./owners/routes";
 import menuRoutes from "./menus/routes";
-import { RefreshTokenModel } from "./auth/tokenModel";
+import { RefreshTokenModel } from "./auth/model";
 import { AuthService } from "./auth/service";
 import { tokenPlugin } from "./lib/tokens";
 import { OwnerModel } from "./owners/model";
@@ -40,6 +40,16 @@ async function main() {
       exposeRoute: true,
       routePrefix: "docs",
       logLevel: "debug",
+      openapi: {
+        components: {
+          securitySchemes: {
+            bearer: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+        },
+      },
     }),
     app.register(fastifyCookie),
     app.register(tokenPlugin),

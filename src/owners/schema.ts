@@ -6,23 +6,35 @@ export const passwordSchema = Type.String({
   minLength: 1,
   maxLength: 255,
 });
-export const ownerSchema = Type.Object({
-  id: Type.Integer(),
-  username: Type.String({
-    minLength: 1,
-    maxLength: 31,
-    pattern: /^[\w-]+$/.source,
-  }),
-  store_name: Type.Optional(Type.String({ minLength: 1, maxLength: 31 })),
-  store_description: Type.Optional(
-    Type.String({
+export const ownerSchema = Type.Object(
+  {
+    id: Type.Integer(),
+    username: Type.String({
       minLength: 1,
-      maxLength: 255,
-    })
-  ),
-  created_at: Type.String({ format: "date-time" }),
-  updated_at: Type.Optional(Type.String({ format: "date-time" })),
-});
+      maxLength: 31,
+      pattern: /^[\w-]+$/.source,
+      examples: ["joongwon"],
+    }),
+    store_name: Type.Optional(
+      Type.String({
+        minLength: 1,
+        maxLength: 31,
+        examples: ["와플스튜디오 중원점"],
+      })
+    ),
+    store_description: Type.Optional(
+      Type.String({
+        minLength: 1,
+        maxLength: 255,
+        examples: ["맛있는 와플을 만든다"],
+      })
+    ),
+    created_at: Type.String({ format: "date-time" }),
+    updated_at: Type.Optional(Type.String({ format: "date-time" })),
+  },
+  { $id: "Owner" }
+);
+
 export type OwnerDto = Static<typeof ownerSchema>;
 export const ownerToDto = (owner: Owner): OwnerDto => ({
   id: owner.id,

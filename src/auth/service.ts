@@ -6,7 +6,7 @@ import {
 } from "../lib/tokens";
 import { OwnerModel } from "../owners/model";
 import { OwnerDto, ownerToDto } from "../owners/schema";
-import { RefreshTokenModel } from "./tokenModel";
+import { RefreshTokenModel } from "./model";
 
 interface LoginResult {
   owner: OwnerDto;
