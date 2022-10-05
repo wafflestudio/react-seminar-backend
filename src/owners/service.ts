@@ -1,7 +1,7 @@
 import { ownerNotFound } from "../lib/errors";
 import { verifyAccessToken } from "../lib/tokens";
-import { OwnerModel, UpdateStoreInfoInput } from "./model";
-import { OwnerDto, ownerToDto } from "./schema";
+import { OwnerModel } from "./model";
+import { OwnerDto, ownerToDto, UpdateOwnerInput } from "./schema";
 
 export class OwnerService {
   private model: OwnerModel;
@@ -20,7 +20,7 @@ export class OwnerService {
     return ownerToDto(owner);
   }
 
-  async updateStoreInfo(access_token: string, storeInfo: UpdateStoreInfoInput) {
+  async updateStoreInfo(access_token: string, storeInfo: UpdateOwnerInput) {
     const { id } = await verifyAccessToken(access_token);
     await this.model.updateStoreInfo(id, storeInfo);
   }
