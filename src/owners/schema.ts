@@ -30,7 +30,7 @@ export const ownerSchema = Type.Object(
       })
     ),
     created_at: Type.String({ format: "date-time" }),
-    updated_at: Type.Optional(Type.String({ format: "date-time" })),
+    updated_at: Type.String({ format: "date-time" }),
   },
   { $id: "Owner" }
 );
@@ -43,7 +43,7 @@ export const ownerToDto = (owner: Owner): OwnerDto => ({
   store_name: owner.store_name ?? undefined,
   store_description: owner.store_description ?? undefined,
   created_at: owner.created_at.toISOString(),
-  updated_at: owner.updated_at?.toISOString() ?? undefined,
+  updated_at: owner.updated_at.toISOString(),
 });
 
 export const updateOwnerSchema = AtLeastOneProp(

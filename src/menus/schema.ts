@@ -39,7 +39,7 @@ export const menuSchema = Type.Object(
       })
     ),
     created_at: Type.String({ format: "date-time" }),
-    updated_at: Type.Optional(Type.String({ format: "date-time" })),
+    updated_at: Type.String({ format: "date-time" }),
     owner: ownerRef,
   },
   { $id: "Menu" }
@@ -95,6 +95,6 @@ export const menuToDto = (menu: MenuWithOwner): MenuDto => ({
   description: menu.description ?? undefined,
   image: menu.image ?? undefined,
   price: menu.price,
-  updated_at: menu.updated_at?.toISOString(),
+  updated_at: menu.updated_at.toISOString(),
 });
 export type MenuWithOwner = Menu & { owner: Owner };
