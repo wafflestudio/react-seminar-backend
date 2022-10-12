@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { OwnerModel } from "../src/owners/model";
 import students from "./students";
+import "../src/lib/env";
 
 async function main() {
   const conn = new PrismaClient();
