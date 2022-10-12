@@ -1,10 +1,10 @@
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
+import { PaginationResponse } from "../lib/schema";
 import {
   createMenuSchema,
   editMenuSchema,
   menuRef,
   menuSchema,
-  paginationAnchor,
   searchMenuOptionSchema,
 } from "./schema";
 import { STATUS } from "../lib/utils";
@@ -20,10 +20,7 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
         schema: {
           querystring: searchMenuOptionSchema,
           response: {
-            [OK]: Type.Object({
-              data: Type.Array(menuRef),
-              next: paginationAnchor,
-            }),
+            [OK]: PaginationResponse(menuRef),
           },
         },
       },

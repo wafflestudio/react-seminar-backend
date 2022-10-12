@@ -51,3 +51,6 @@ export const nothingToUpdate = () =>
 
 export const notYourMenu = (verb = "변경") =>
   new AccessDeniedError(`다른 사람의 메뉴를 ${verb}할 수 없습니다`);
+
+export const reviewNotFound = () =>
+  new NotFoundError("리뷰를 찾을 수 없습니다");

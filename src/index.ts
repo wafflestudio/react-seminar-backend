@@ -77,7 +77,7 @@ async function main() {
 
   await registry;
 
-  await app.listen({ port: 8080 });
+  await app.listen({ port: 8080, host: "0.0.0.0" });
 }
 
 main().catch((reason) => {

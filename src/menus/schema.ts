@@ -1,7 +1,7 @@
 import { Static, Type } from "@sinclair/typebox";
+import { AtLeastOneProp, Nullable, paginationRequest } from "../lib/schema";
 import { ownerRef, ownerToDto } from "../owners/schema";
 import { Menu, Owner } from "@prisma/client";
-import { AtLeastOneProp, Nullable } from "../lib/utils";
 
 export const menuSchema = Type.Object(
   {
@@ -15,7 +15,7 @@ export const menuSchema = Type.Object(
       waffle: "waffle",
       beverage: "beverage",
       coffee: "coffee",
-      desert: "desert",
+      dessert: "dessert",
     } as const),
     price: Type.Integer({
       minimum: 10,
@@ -45,24 +45,21 @@ export const menuSchema = Type.Object(
   { $id: "Menu" }
 );
 export const menuRef = Type.Ref(menuSchema);
-export const searchMenuOptionSchema = Type.Partial(
-  Type.Object({
-    from: Type.Integer({ description: "next로 들어오는 값을 넣으시오" }),
-    count: Type.Integer({
-      minimum: 1,
-      maximum: 50,
-      default: 20,
-      description: "다 긁어오려면 count를 넣지마시오",
-    }),
-    owner: Type.Integer({ description: "가게 주인장 id" }),
-    search: Type.String({
-      description: "메뉴 이름",
-      minLength: 1,
-      maxLength: 31,
-    }),
-    type: menuSchema.properties.type,
-  })
-);
+export const searchMenuOptionSchema = Type.Intersect([
+  paginationRequest,
+  Type.Partial(
+    Type.Object({
+      owner: Type.Integer({ description: "가게 주인장 id" }),
+      search: Type.String({
+        description: "메뉴 이름",
+        minLength: 1,
+        maxLength: 31,
+      }),
+      type: menuSchema.properties.type,
+    })
+  ),
+]);
+
 export const createMenuSchema = Type.Object({
   name: menuSchema.properties.name,
   type: menuSchema.properties.type,
@@ -78,9 +75,7 @@ export const editMenuSchema = AtLeastOneProp(
     description: Nullable(menuSchema.properties.description),
   })
 );
-export const paginationAnchor = Type.Integer({
-  description: "이 값을 from에 넣으면 다음 페이지를 불러온다",
-});
+
 export type SearchMenuOption = Static<typeof searchMenuOptionSchema>;
 export type MenuDto = Static<typeof menuSchema>;
 export type CreateMenuInput = Static<typeof createMenuSchema>;

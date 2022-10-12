@@ -1,6 +1,6 @@
 import { Owner } from "@prisma/client";
 import { Static, Type } from "@sinclair/typebox";
-import { AtLeastOneProp, Nullable } from "../lib/utils";
+import { AtLeastOneProp, Nullable } from "../lib/schema";
 
 export const passwordSchema = Type.String({
   minLength: 1,

@@ -62,5 +62,5 @@ enum MenuType {
   waffle
   beverage
   coffee
-  desert
+  dessert
 }
