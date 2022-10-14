@@ -1,5 +1,6 @@
 import fastifyCookie from "@fastify/cookie";
 import fastifySwagger from "@fastify/swagger";
+import fastifyFormbody from "@fastify/formbody";
 import fastify from "fastify";
 import authRoutes from "./auth/routes";
 import ownersRoutes from "./owners/routes";
@@ -64,6 +65,7 @@ async function main() {
         },
       },
     }),
+    app.register(fastifyFormbody),
     app.register(fastifyCookie),
     app.register(tokenPlugin),
     app.register(authRoutes, { prefix: "/auth" }),
