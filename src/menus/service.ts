@@ -1,3 +1,4 @@
+import { paginate, PaginationResponseType } from "../lib/schema";
 import { MenuModel } from "./models";
 import {
   CreateMenuInput,
@@ -17,12 +18,12 @@ export class MenuService {
 
   async search(
     options: SearchMenuOption
-  ): Promise<{ data: MenuDto[]; next: number }> {
+  ): Promise<PaginationResponseType<MenuDto>> {
     const menus = await this.model.getMany(options);
-    return {
-      data: menus.map((menu) => menuToDto(menu)),
-      next: menus[menus.length - 1].created_at.getDate(),
-    };
+    return paginate(
+      menus.map((menu) => menuToDto(menu)),
+      options.from ?? new Date().toISOString()
+    );
   }
 
   async create(access_token: string, data: CreateMenuInput): Promise<MenuDto> {

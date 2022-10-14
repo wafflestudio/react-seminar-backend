@@ -1,5 +1,10 @@
 import { Static, Type } from "@sinclair/typebox";
-import { AtLeastOneProp, Nullable, paginationRequest } from "../lib/schema";
+import {
+  AtLeastOneProp,
+  MyEnum,
+  Nullable,
+  paginationRequest,
+} from "../lib/schema";
 import { ownerRef, ownerToDto } from "../owners/schema";
 import { Menu, Owner } from "@prisma/client";
 
@@ -11,7 +16,7 @@ export const menuSchema = Type.Object(
       maxLength: 31,
       examples: ["딸기생크림와플"],
     }),
-    type: Type.Enum({
+    type: MyEnum({
       waffle: "waffle",
       beverage: "beverage",
       coffee: "coffee",

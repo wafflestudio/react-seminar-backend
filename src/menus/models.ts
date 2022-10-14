@@ -15,6 +15,7 @@ export class MenuModel {
     const type = option?.type;
     const search = option?.search;
     const owner = option?.owner;
+    console.log("from=", option?.from);
     return this.conn.menu.findMany({
       where: {
         created_at: { lt: from },

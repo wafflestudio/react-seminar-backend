@@ -4,6 +4,7 @@ import fastify from "fastify";
 import authRoutes from "./auth/routes";
 import ownersRoutes from "./owners/routes";
 import menuRoutes from "./menus/routes";
+import reviewRoutes from "./reviews/routes";
 import { RefreshTokenModel } from "./auth/model";
 import { AuthService } from "./auth/service";
 import { tokenPlugin } from "./lib/tokens";
@@ -14,6 +15,9 @@ import { MenuModel } from "./menus/models";
 import { MenuService } from "./menus/service";
 import { ownerSchema } from "./owners/schema";
 import { menuSchema } from "./menus/schema";
+import { ReviewModel } from "./reviews/model";
+import { reviewSchema } from "./reviews/schema";
+import { ReviewService } from "./reviews/service";
 
 declare module "fastify" {
   export interface FastifyInstance {
@@ -21,9 +25,11 @@ declare module "fastify" {
     ownerModel: OwnerModel;
     tokenModel: RefreshTokenModel;
     menuModel: MenuModel;
+    reviewModel: ReviewModel;
     authService: AuthService;
     ownerService: OwnerService;
     menuService: MenuService;
+    reviewService: ReviewService;
   }
 }
 
@@ -63,17 +69,21 @@ async function main() {
     app.register(authRoutes, { prefix: "/auth" }),
     app.register(ownersRoutes, { prefix: "/owners" }),
     app.register(menuRoutes, { prefix: "/menus" }),
+    app.register(reviewRoutes, { prefix: "/reviews" }),
   ]);
 
   app.addSchema(ownerSchema);
   app.addSchema(menuSchema);
+  app.addSchema(reviewSchema);
   app.decorate("db", new PrismaClient());
   app.decorate("ownerModel", new OwnerModel(app.db));
   app.decorate("tokenModel", new RefreshTokenModel(app.db));
   app.decorate("menuModel", new MenuModel(app.db));
+  app.decorate("reviewModel", new ReviewModel(app.db));
   app.decorate("authService", new AuthService(app.ownerModel, app.tokenModel));
   app.decorate("ownerService", new OwnerService(app.ownerModel));
   app.decorate("menuService", new MenuService(app.menuModel));
+  app.decorate("reviewService", new ReviewService(app.reviewModel));
 
   await registry;
 

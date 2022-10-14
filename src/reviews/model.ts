@@ -81,4 +81,15 @@ export class ReviewModel {
       throw reviewNotFound();
     });
   }
+
+  async checkAuthor(review_id: number, author_id: number): Promise<boolean> {
+    const review = await this.conn.review.findUnique({
+      where: {
+        id: review_id,
+      },
+      select: { author_id: true },
+      rejectOnNotFound: () => reviewNotFound(),
+    });
+    return review.author_id === author_id;
+  }
 }
