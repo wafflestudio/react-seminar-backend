@@ -1,11 +1,9 @@
 import { randomUUID } from "crypto";
-import { FastifyReply, FastifyRequest } from "fastify";
-import fp from "fastify-plugin";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
 import { invalidToken } from "./errors";
 
-export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 10; // 10 minutes in ms
+export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours in ms
 export const REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day in ms
 interface AccessTokenPayload {
   username: string;
@@ -41,43 +39,3 @@ export const verifyAccessToken = async (
   });
 
 export const createRefreshToken = async () => randomUUID();
-
-declare module "fastify" {
-  interface FastifyReply {
-    withToken(token: string): this;
-    clearToken(): this;
-  }
-  interface FastifyRequest {
-    refreshToken: string | null;
-    getAccessToken(): string;
-  }
-}
-
-export const tokenPlugin = fp(async (instance) => {
-  instance.decorateRequest("refreshToken", null);
-  instance.addHook("preHandler", async (request) => {
-    request.refreshToken = request.cookies[REFRESH_TOKEN_KEY] ?? null;
-    return Promise.resolve();
-  });
-  instance.decorateRequest("getAccessToken", function (this: FastifyRequest) {
-    const authorization = this.headers.authorization;
-    if (!authorization) throw invalidToken();
-    const split = authorization.indexOf(" ");
-    const schema = authorization.slice(0, split);
-    const token = authorization.slice(split + 1).trim();
-    if (schema !== "Bearer") throw invalidToken();
-    return token;
-  });
-  instance.decorateReply(
-    "withToken",
-    function (this: FastifyReply, token: string) {
-      return this.setCookie(REFRESH_TOKEN_KEY, token, {
-        httpOnly: true,
-        sameSite: "strict",
-      });
-    }
-  );
-  instance.decorateReply("clearToken", function (this: FastifyReply) {
-    return this.clearCookie(REFRESH_TOKEN_KEY);
-  });
-});

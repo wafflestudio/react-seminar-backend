@@ -5,6 +5,7 @@
     "dev": "nodemon --exec ts-node-esm src/index.ts",
     "init-data": "ts-node-esm scripts/init-data.ts",
     "make-db-url": "ts-node-esm scripts/make-db-url.ts",
+    "purge-tokens": "ts-node-esm scripts/purge-tokens.ts",
     "build": "tsc",
     "clean": "rm -r build",
     "start": "node build/index.js"
