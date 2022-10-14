@@ -14,6 +14,9 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/login",
       {
         schema: {
+          summary: "로그인",
+          description:
+            "JWT 토큰과 리프레시 토큰을 생성합니다. 리프레시 토큰은 쿠키에 들어가요.",
           body: Type.Object({
             username: ownerSchema.properties.username,
             password: passwordSchema,
@@ -40,6 +43,8 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/logout",
       {
         schema: {
+          summary: "로그아웃",
+          description: "리프레시 토큰을 삭제합니다.",
           security: [bearerSecurity],
           response: {
             [OK]: Type.Void(),
@@ -58,6 +63,9 @@ const routes: FastifyPluginAsync = async (instance) => {
       "/refresh",
       {
         schema: {
+          summary: "토큰 재발급",
+          descriptioin:
+            "JWT 토큰과 리프레시 토큰을 재발급합니다. 당연히 리프레시 토큰이 없으면 재발급 안 됩니다",
           response: {
             [OK]: Type.Object({
               access_token: Type.String(),
