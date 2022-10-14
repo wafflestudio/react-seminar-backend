@@ -64,7 +64,7 @@ const routes: FastifyPluginAsync = async (instance) => {
       {
         schema: {
           summary: "토큰 재발급",
-          descriptioin:
+          description:
             "JWT 토큰과 리프레시 토큰을 재발급합니다. 당연히 리프레시 토큰이 없으면 재발급 안 됩니다",
           response: {
             [OK]: Type.Object({

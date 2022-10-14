@@ -79,7 +79,7 @@ const routes: FastifyPluginAsync = async (instance) => {
       {
         schema: {
           summary: "내 정보 수정",
-          description: "내 가게의 별명과 설명을 수정합니다",
+          description: "로그인한 사장님의 가게의 별명과 설명을 수정합니다",
           security: [bearerSecurity],
           body: updateOwnerSchema,
           response: {
