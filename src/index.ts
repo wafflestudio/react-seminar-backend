@@ -1,6 +1,7 @@
 import fastifyCookie from "@fastify/cookie";
 import fastifySwagger from "@fastify/swagger";
 import fastifyFormbody from "@fastify/formbody";
+import fastifyCors from "@fastify/cors";
 import fastify from "fastify";
 import authRoutes from "./auth/routes";
 import { tokenPlugin } from "./lib/tokenPlugin";
@@ -65,6 +66,7 @@ async function main() {
         },
       },
     }),
+    app.register(fastifyCors, {}),
     app.register(fastifyFormbody),
     app.register(fastifyCookie),
     app.register(tokenPlugin),
