@@ -66,7 +66,9 @@ async function main() {
         },
       },
     }),
-    app.register(fastifyCors, {}),
+    app.register(fastifyCors, {
+        allowedHeaders: "Authorization,Content-Type"
+    }),
     app.register(fastifyFormbody),
     app.register(fastifyCookie),
     app.register(tokenPlugin),
