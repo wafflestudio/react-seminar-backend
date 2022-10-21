@@ -8,7 +8,8 @@
     "purge-tokens": "ts-node-esm scripts/purge-tokens.ts",
     "build": "tsc",
     "clean": "rm -r build",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "deploy": "dotenv sh scripts/deploy.sh"
   },
   "dependencies": {
     "@fastify/cookie": "^8.3.0",
@@ -23,6 +24,7 @@
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
     "dotenv": "^16.0.2",
+    "dotenv-cli": "^6.0.0",
     "eslint": "8.22.0",
     "fastify": "^4.6.0",
     "fastify-plugin": "^4.2.1",
