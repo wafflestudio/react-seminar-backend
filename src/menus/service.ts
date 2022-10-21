@@ -8,10 +8,12 @@ import {
   EditMenuInput,
 } from "./schema";
 import { verifyAccessToken } from "../lib/tokens";
-import { menuNotFound, notYourMenu } from "../lib/errors";
+import { duplicateMenuName, menuNotFound, notYourMenu } from "../lib/errors";
+import { Prisma } from "@prisma/client";
 
 export class MenuService {
   private readonly model: MenuModel;
+
   constructor(model: MenuModel) {
     this.model = model;
   }
@@ -28,7 +30,16 @@ export class MenuService {
 
   async create(access_token: string, data: CreateMenuInput): Promise<MenuDto> {
     const { id } = await verifyAccessToken(access_token);
-    const menu = await this.model.create(id, { ...data });
+    const menu = await this.model
+      .create(id, { ...data })
+      .catch((e) =>
+        Promise.reject(
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+            e.code === "P2002"
+            ? duplicateMenuName()
+            : e
+        )
+      );
     return menuToDto(menu);
   }
 
@@ -45,7 +56,16 @@ export class MenuService {
   ): Promise<MenuDto> {
     const { id: owner_id } = await verifyAccessToken(access_token);
     if (!(await this.model.checkOwner(id, owner_id))) throw notYourMenu("수정");
-    const menu = await this.model.update(id, data);
+    const menu = await this.model
+      .update(id, data)
+      .catch((e) =>
+        Promise.reject(
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+            e.code === "P2002"
+            ? duplicateMenuName()
+            : e
+        )
+      );
     return menuToDto(menu);
   }
 

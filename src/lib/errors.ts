@@ -49,6 +49,9 @@ export const menuNotFound = () => new NotFoundError("메뉴를 찾을 수 없습
 export const nothingToUpdate = () =>
   new BadRequestError("수정할 사항이 없습니다");
 
+export const duplicateMenuName = () =>
+  new BadRequestError("같은 이름의 메뉴가 이미 존재합니다");
+
 export const notYourMenu = (verb = "변경") =>
   new AccessDeniedError(`다른 사람의 메뉴를 ${verb}할 수 없습니다`);
 

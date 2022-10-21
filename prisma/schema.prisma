@@ -34,6 +34,8 @@ model Menu {
 
   owner   Owner    @relation(fields: [owner_id], references: [id])
   reviews Review[]
+
+  @@unique([name, owner_id])
 }
 
 model RefreshToken {
