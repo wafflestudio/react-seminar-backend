@@ -51,6 +51,7 @@ export class AuthService {
       createAccessToken(owner.username, owner.id),
       createRefreshToken(),
     ]);
+    await this.tokenModel.insert(new_refresh_token, owner.id);
     return {
       access_token,
       refresh_token: new_refresh_token,
