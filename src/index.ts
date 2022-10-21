@@ -20,6 +20,8 @@ import { menuSchema } from "./menus/schema";
 import { ReviewModel } from "./reviews/model";
 import { reviewSchema } from "./reviews/schema";
 import { ReviewService } from "./reviews/service";
+import * as fs from "fs";
+import path from "path";
 
 declare module "fastify" {
   export interface FastifyInstance {
@@ -43,6 +45,15 @@ async function main() {
       },
       level: "debug",
     },
+    https:
+      process.env.NODE_ENV === "development"
+        ? {
+            key: fs.readFileSync(
+              path.resolve(__dirname, "../localhost-key.pem")
+            ),
+            cert: fs.readFileSync(path.resolve(__dirname, "../localhost.pem")),
+          }
+        : {},
   });
 
   const registry = Promise.all([
@@ -67,7 +78,9 @@ async function main() {
       },
     }),
     app.register(fastifyCors, {
-        allowedHeaders: "Authorization,Content-Type"
+      origin: true,
+      allowedHeaders: "Authorization,Content-Type",
+      credentials: true,
     }),
     app.register(fastifyFormbody),
     app.register(fastifyCookie),

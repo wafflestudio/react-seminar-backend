@@ -34,7 +34,8 @@ export const tokenPlugin = fp(async (instance) => {
     function (this: FastifyReply, token: string) {
       return this.setCookie(REFRESH_TOKEN_KEY, token, {
         httpOnly: true,
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
         expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
       });
     }

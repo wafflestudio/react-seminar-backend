@@ -2,7 +2,7 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "dev": "nodemon --exec ts-node-esm src/index.ts",
+    "dev": "NODE_ENV=development nodemon --exec ts-node-esm src/index.ts",
     "init-data": "ts-node-esm scripts/init-data.ts",
     "make-db-url": "ts-node-esm scripts/make-db-url.ts",
     "purge-tokens": "ts-node-esm scripts/purge-tokens.ts",
