@@ -53,7 +53,7 @@ async function main() {
             ),
             cert: fs.readFileSync(path.resolve(__dirname, "../localhost.pem")),
           }
-        : {},
+        : null,
   });
 
   const registry = Promise.all([
