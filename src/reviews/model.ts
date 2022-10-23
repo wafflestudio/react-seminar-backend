@@ -48,7 +48,9 @@ export class ReviewModel {
   ): Promise<ReviewWithMenuAuthor> {
     return await this.conn.review.create({
       data: {
-        ...data,
+        content: data.content,
+        menu: { connect: { id: data.menu } },
+        rating: data.rating,
         author: { connect: { id: author_id } },
       },
       include: {
