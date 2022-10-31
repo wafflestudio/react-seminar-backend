@@ -41,6 +41,10 @@ export const tokenPlugin = fp(async (instance) => {
     }
   );
   instance.decorateReply("clearToken", function (this: FastifyReply) {
-    return this.clearCookie(REFRESH_TOKEN_KEY);
+    return this.clearCookie(REFRESH_TOKEN_KEY, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
   });
 });
