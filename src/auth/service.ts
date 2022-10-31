@@ -1,4 +1,4 @@
-import { invalidLogin, invalidToken } from "../lib/errors";
+import { invalidLogin, refreshTokenInvalid } from "../lib/errors";
 import {
   createAccessToken,
   createRefreshToken,
@@ -45,7 +45,7 @@ export class AuthService {
 
   async refresh(refresh_token: string): Promise<RefreshResult> {
     const owner = await this.ownerModel.getByRefreshToken(refresh_token);
-    if (!owner) throw invalidToken();
+    if (!owner) throw refreshTokenInvalid();
     await this.tokenModel.remove(refresh_token);
     const [access_token, new_refresh_token] = await Promise.all([
       createAccessToken(owner.username, owner.id),

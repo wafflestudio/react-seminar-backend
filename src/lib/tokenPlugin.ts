@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import { invalidToken } from "./errors";
+import { accessTokenInvalid, accessTokenNotFound } from "./errors";
 import { REFRESH_TOKEN_EXPIRATION, REFRESH_TOKEN_KEY } from "./tokens";
 
 declare module "fastify" {
@@ -22,11 +22,11 @@ export const tokenPlugin = fp(async (instance) => {
   });
   instance.decorateRequest("getAccessToken", function (this: FastifyRequest) {
     const authorization = this.headers.authorization;
-    if (!authorization) throw invalidToken();
+    if (!authorization) throw accessTokenNotFound();
     const split = authorization.indexOf(" ");
     const schema = authorization.slice(0, split);
     const token = authorization.slice(split + 1).trim();
-    if (schema !== "Bearer") throw invalidToken();
+    if (schema !== "Bearer") throw accessTokenInvalid();
     return token;
   });
   instance.decorateReply(
