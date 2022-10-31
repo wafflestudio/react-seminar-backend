@@ -9,6 +9,11 @@ MYSQL_DATABASE=database
 JWT_SECRET=s3cr3+
 
 DATABASE_URL=mysql://user:pa55w0rd@localhost/database
+
+KEY_FILE=/usr/foo/.ssh/key
+REMOTE_USER=bar
+REMOTE_HOST=0.0.0.0
+REMOTE_PROJECT_ROOT=/home/foo/bar
 ```
 
 * `DATABASE_URL`은 `yarn make-db-url`의 출력 결과값을 사용하시면 됩니다.
