@@ -26,6 +26,13 @@ GRANT ALL ON *.* TO `user`;
 ## data initialization
 `yarn init-data`를 실행하여 사용자 명단을 초기화합니다.
 
+## https 설정
+```shell
+brew install mkcert nss
+mkcert -install
+mkcert localhost
+```
+
 ## 기타
 * `yarn dev`: 테스트 서버 실행
 * `yarn build`: 빌드

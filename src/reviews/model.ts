@@ -24,7 +24,9 @@ export class ReviewModel {
         menu_id,
       },
       include: {
-        menu: { include: { owner: true } },
+        menu: {
+          include: { owner: true, reviews: { select: { rating: true } } },
+        },
         author: true,
       },
       orderBy: [{ created_at: "desc" }],
@@ -36,7 +38,9 @@ export class ReviewModel {
     return this.conn.review.findUnique({
       where: { id },
       include: {
-        menu: { include: { owner: true } },
+        menu: {
+          include: { owner: true, reviews: { select: { rating: true } } },
+        },
         author: true,
       },
     });
@@ -54,7 +58,9 @@ export class ReviewModel {
         author: { connect: { id: author_id } },
       },
       include: {
-        menu: { include: { owner: true } },
+        menu: {
+          include: { owner: true, reviews: { select: { rating: true } } },
+        },
         author: true,
       },
     });
@@ -69,7 +75,9 @@ export class ReviewModel {
         where: { id },
         data,
         include: {
-          menu: { include: { owner: true } },
+          menu: {
+            include: { owner: true, reviews: { select: { rating: true } } },
+          },
           author: true,
         },
       })

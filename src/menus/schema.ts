@@ -43,6 +43,7 @@ export const menuSchema = Type.Object(
         examples: ["맛있는 전설이 깃든 와플"],
       })
     ),
+    rating: Type.Optional(Type.Number({ minimum: 1, maximum: 10 })),
     created_at: Type.String({ format: "date-time" }),
     updated_at: Type.String({ format: "date-time" }),
     owner: ownerRef,
@@ -86,15 +87,25 @@ export type MenuDto = Static<typeof menuSchema>;
 export type CreateMenuInput = Static<typeof createMenuSchema>;
 export type EditMenuInput = Static<typeof editMenuSchema>;
 
-export const menuToDto = (menu: MenuWithOwner): MenuDto => ({
-  id: menu.id,
-  owner: ownerToDto(menu.owner),
-  type: menu.type,
-  name: menu.name,
-  created_at: menu.created_at.toISOString(),
-  description: menu.description ?? undefined,
-  image: menu.image ?? undefined,
-  price: menu.price,
-  updated_at: menu.updated_at.toISOString(),
-});
-export type MenuWithOwner = Menu & { owner: Owner };
+export const menuToDto = (menu: MenuWithOwnerRating): MenuDto => {
+  const rating = menu.reviews.length
+    ? menu.reviews.reduce((sum, { rating }) => sum + rating, 0) /
+      menu.reviews.length
+    : undefined;
+  return {
+    id: menu.id,
+    owner: ownerToDto(menu.owner),
+    type: menu.type,
+    name: menu.name,
+    created_at: menu.created_at.toISOString(),
+    description: menu.description ?? undefined,
+    image: menu.image ?? undefined,
+    price: menu.price,
+    rating,
+    updated_at: menu.updated_at.toISOString(),
+  };
+};
+export type MenuWithOwnerRating = Menu & {
+  owner: Owner;
+  reviews: { rating: number }[];
+};

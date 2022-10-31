@@ -1,6 +1,11 @@
 import { Static, Type } from "@sinclair/typebox";
 import { AtLeastOneProp, paginationRequest } from "../lib/schema";
-import { menuRef, menuSchema, menuToDto, MenuWithOwner } from "../menus/schema";
+import {
+  menuRef,
+  menuSchema,
+  menuToDto,
+  MenuWithOwnerRating,
+} from "../menus/schema";
 import { ownerRef, ownerToDto } from "../owners/schema";
 import { Owner, Review } from "@prisma/client";
 
@@ -44,7 +49,7 @@ export type CreateReviewInput = Static<typeof createReviewSchema>;
 export type UpdateReviewInput = Static<typeof updateReviewSchema>;
 export type SearchReviewInput = Static<typeof searchReviewSchema>;
 export type ReviewWithMenuAuthor = Review & {
-  menu: MenuWithOwner;
+  menu: MenuWithOwnerRating;
   author: Owner;
 };
 

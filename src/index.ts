@@ -13,7 +13,7 @@ import { AuthService } from "./auth/service";
 import { OwnerModel } from "./owners/model";
 import { OwnerService } from "./owners/service";
 import { PrismaClient } from "@prisma/client";
-import { MenuModel } from "./menus/models";
+import { MenuModel } from "./menus/model";
 import { MenuService } from "./menus/service";
 import { ownerSchema } from "./owners/schema";
 import { menuSchema } from "./menus/schema";

@@ -1,5 +1,9 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { SearchMenuOption, MenuWithOwner, CreateMenuInput } from "./schema";
+import {
+  SearchMenuOption,
+  MenuWithOwnerRating,
+  CreateMenuInput,
+} from "./schema";
 import { menuNotFound } from "../lib/errors";
 
 export class MenuModel {
@@ -9,7 +13,7 @@ export class MenuModel {
     this.conn = conn;
   }
 
-  async getMany(option?: SearchMenuOption): Promise<MenuWithOwner[]> {
+  async getMany(option?: SearchMenuOption): Promise<MenuWithOwnerRating[]> {
     const from = new Date(option?.from ?? Date.now());
     const count = option?.count;
     const type = option?.type;
@@ -23,7 +27,7 @@ export class MenuModel {
         name: search ? { contains: search } : undefined,
         owner_id: owner,
       },
-      include: { owner: true },
+      include: { owner: true, reviews: { select: { rating: true } } },
       orderBy: [{ created_at: "desc" }],
       take: count,
     });
@@ -32,7 +36,7 @@ export class MenuModel {
   async create(
     owner_id: number,
     menu: CreateMenuInput
-  ): Promise<MenuWithOwner> {
+  ): Promise<MenuWithOwnerRating> {
     return this.conn.menu.create({
       data: {
         ...menu,
@@ -40,14 +44,14 @@ export class MenuModel {
           connect: { id: owner_id },
         },
       },
-      include: { owner: true },
+      include: { owner: true, reviews: { select: { rating: true } } },
     });
   }
 
-  async getById(id: number): Promise<MenuWithOwner | null> {
+  async getById(id: number): Promise<MenuWithOwnerRating | null> {
     return this.conn.menu.findUnique({
       where: { id },
-      include: { owner: true },
+      include: { owner: true, reviews: { select: { rating: true } } },
     });
   }
 
@@ -63,12 +67,12 @@ export class MenuModel {
   async update(
     id: number,
     menu: Prisma.MenuUpdateInput
-  ): Promise<MenuWithOwner> {
+  ): Promise<MenuWithOwnerRating> {
     return this.conn.menu
       .update({
         data: menu,
         where: { id },
-        include: { owner: true },
+        include: { owner: true, reviews: { select: { rating: true } } },
       })
       .catch(() => {
         throw menuNotFound();

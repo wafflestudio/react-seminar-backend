@@ -1,5 +1,5 @@
 import { paginate, PaginationResponseType } from "../lib/schema";
-import { MenuModel } from "./models";
+import { MenuModel } from "./model";
 import {
   CreateMenuInput,
   MenuDto,
