@@ -38,8 +38,14 @@ export class BadRequestError extends ErrorWithStatus {
 export const invalidLogin = () =>
   new UnauthorizedError("이름 또는 패스워드가 올바르지 않습니다");
 
-export const invalidToken = () =>
-  new UnauthorizedError("토큰이 올바르지 않습니다");
+export const refreshTokenNotFound = () =>
+  new UnauthorizedError("리프레시 토큰을 찾을 수 없습니다");
+export const refreshTokenInvalid = () =>
+  new UnauthorizedError("잘못된 리프레시 토큰입니다");
+export const accessTokenNotFound = () =>
+  new UnauthorizedError("액세스 토큰을 찾을 수 없습니다");
+export const accessTokenInvalid = () =>
+  new UnauthorizedError("잘못된 액세스 토큰입니다");
 
 export const ownerNotFound = () =>
   new NotFoundError("사장님을 찾을 수 없습니다");

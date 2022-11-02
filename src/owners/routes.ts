@@ -1,7 +1,6 @@
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
-import { invalidToken } from "../lib/errors";
 import { STATUS } from "../lib/utils";
 import {
   ownerRef,
@@ -88,10 +87,8 @@ const routes: FastifyPluginAsync = async (instance) => {
         },
       },
       async (request, reply) => {
-        const access_token = request.getAccessToken();
-        if (!access_token) throw invalidToken();
         const result = await instance.ownerService.updateStoreInfo(
-          access_token,
+          request.getAccessToken(),
           request.body
         );
         return reply.send(result);

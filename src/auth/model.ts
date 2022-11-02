@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { invalidToken } from "../lib/errors";
+import { refreshTokenInvalid } from "../lib/errors";
 import { REFRESH_TOKEN_EXPIRATION } from "../lib/tokens";
 import { selectOne } from "../lib/utils";
 
@@ -25,7 +25,7 @@ export class RefreshTokenModel {
         select: { id: true },
       })
     );
-    if (!tokenEntity) throw invalidToken();
+    if (!tokenEntity) throw refreshTokenInvalid();
     await this.conn.refreshToken.delete({ where: { id: tokenEntity.id } });
   }
 
@@ -36,7 +36,7 @@ export class RefreshTokenModel {
         select: { id: true },
       })
     );
-    if (!tokenEntity) throw invalidToken();
+    if (!tokenEntity) throw refreshTokenInvalid();
     await this.conn.refreshToken.delete({ where: { id: tokenEntity.id } });
   }
 

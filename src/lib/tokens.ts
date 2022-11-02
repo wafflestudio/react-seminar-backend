@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
-import { invalidToken } from "./errors";
+import { accessTokenInvalid } from "./errors";
 
 export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours in ms
 export const REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day in ms
@@ -33,7 +33,7 @@ export const verifyAccessToken = async (
   new Promise((resolve, reject) => {
     jsonwebtoken.verify(token, JWT_SECRET, (error, decoded) =>
       error || !decoded
-        ? reject(invalidToken())
+        ? reject(accessTokenInvalid())
         : resolve(decoded as AccessTokenPayload & JwtPayload)
     );
   });
