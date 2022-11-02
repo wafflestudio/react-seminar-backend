@@ -1,7 +1,7 @@
 import { Owner, PrismaClient } from "@prisma/client";
 import { ownerNotFound } from "../lib/errors";
 import { selectOne } from "../lib/utils";
-import { CreateOwnerInput, UpdateOwnerInput } from "./schema";
+import { CreateOwnerInput, ListOwnerInput, UpdateOwnerInput } from "./schema";
 
 export class OwnerModel {
   private readonly conn: PrismaClient;
@@ -66,7 +66,16 @@ export class OwnerModel {
     });
   }
 
-  async getMany(): Promise<Owner[]> {
-    return this.conn.owner.findMany();
+  async getMany(query: ListOwnerInput): Promise<Owner[]> {
+    return this.conn.owner.findMany({
+      where: query.name
+        ? {
+            OR: [
+              { store_name: { contains: query.name } },
+              { username: { contains: query.name } },
+            ],
+          }
+        : undefined,
+    });
   }
 }

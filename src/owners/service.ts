@@ -1,7 +1,12 @@
 import { ownerNotFound } from "../lib/errors";
 import { verifyAccessToken } from "../lib/tokens";
 import { OwnerModel } from "./model";
-import { OwnerDto, ownerToDto, UpdateOwnerInput } from "./schema";
+import {
+  ListOwnerInput,
+  OwnerDto,
+  ownerToDto,
+  UpdateOwnerInput,
+} from "./schema";
 
 export class OwnerService {
   private model: OwnerModel;
@@ -9,8 +14,8 @@ export class OwnerService {
     this.model = model;
   }
 
-  async getAll(): Promise<OwnerDto[]> {
-    const owners = await this.model.getMany();
+  async getAll(query: ListOwnerInput): Promise<OwnerDto[]> {
+    const owners = await this.model.getMany(query);
     return owners.map((owner) => ownerToDto(owner));
   }
 

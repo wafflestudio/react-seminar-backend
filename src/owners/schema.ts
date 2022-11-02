@@ -60,6 +60,17 @@ export const createOwnerSchema = Type.Object({
   store_description: Type.Optional(ownerSchema.properties.store_description),
 });
 
+export const listOwnerSchema = Type.Object({
+  name: Type.Optional(
+    Type.String({
+      minLength: 1,
+      description: "검색할 가게의 이름. store_name 또는 username을 검색합니다",
+    })
+  ),
+});
+
 export type UpdateOwnerInput = Static<typeof updateOwnerSchema>;
 
 export type CreateOwnerInput = Static<typeof createOwnerSchema>;
+
+export type ListOwnerInput = Static<typeof listOwnerSchema>;

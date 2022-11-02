@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { STATUS } from "../lib/utils";
 import {
+  listOwnerSchema,
   ownerRef,
   ownerSchema,
   passwordSchema,
@@ -21,11 +22,12 @@ const routes: FastifyPluginAsync = async (instance) => {
           summary: "사장님 목록",
           description:
             "모든 사장님의 목록을 가져옵니다. 참고로 사장님=사용자입니다.",
+          querystring: listOwnerSchema,
           response: { [OK]: Type.Array(ownerRef) },
         },
       },
       async (request, reply) => {
-        const owners = await instance.ownerService.getAll();
+        const owners = await instance.ownerService.getAll(request.query);
         request.log.debug(owners[0], "owners[0]");
         return reply.send(owners);
       }
