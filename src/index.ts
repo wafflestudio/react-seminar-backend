@@ -22,6 +22,8 @@ import { reviewSchema } from "./reviews/schema";
 import { ReviewService } from "./reviews/service";
 import * as fs from "fs";
 import path from "path";
+import fastifySchedule from "@fastify/schedule";
+import { AsyncTask, SimpleIntervalJob } from "toad-scheduler";
 
 declare module "fastify" {
   export interface FastifyInstance {
@@ -83,6 +85,7 @@ async function main() {
       credentials: true,
     }),
     app.register(fastifyFormbody),
+    app.register(fastifySchedule),
     app.register(fastifyCookie),
     app.register(tokenPlugin),
     app.register(authRoutes, { prefix: "/auth" }),
@@ -105,6 +108,24 @@ async function main() {
   app.decorate("reviewService", new ReviewService(app.reviewModel));
 
   await registry;
+
+  await app.ready();
+
+  app.scheduler.addIntervalJob(
+    new SimpleIntervalJob(
+      { days: 1 },
+      new AsyncTask(
+        "purge-tokens",
+        async () => {
+          await app.tokenModel.purge();
+          app.log.info("successfully executed task purge-tokens");
+        },
+        (err) => {
+          app.log.error(err, "cannot execute task purge-tokens");
+        }
+      )
+    )
+  );
 
   await app.listen({ port: 8080, host: "0.0.0.0" });
 }
