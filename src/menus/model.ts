@@ -84,7 +84,7 @@ export class MenuModel {
       .delete({
         where: { id },
       })
-      .catch(() => {
+      .catch((reason) => {
         throw menuNotFound();
       });
   }

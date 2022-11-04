@@ -56,7 +56,7 @@ model Review {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  menu   Menu  @relation(fields: [menu_id], references: [id])
+  menu   Menu  @relation(fields: [menu_id], references: [id], onDelete: Cascade)
   author Owner @relation(fields: [author_id], references: [id])
 }
 

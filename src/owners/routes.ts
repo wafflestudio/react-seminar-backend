@@ -28,7 +28,6 @@ const routes: FastifyPluginAsync = async (instance) => {
       },
       async (request, reply) => {
         const owners = await instance.ownerService.getAll(request.query);
-        request.log.debug(owners[0], "owners[0]");
         return reply.send(owners);
       }
     )
