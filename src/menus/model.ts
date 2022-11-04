@@ -4,7 +4,7 @@ import {
   MenuWithOwnerRating,
   CreateMenuInput,
 } from "./schema";
-import { menuNotFound } from "../lib/errors";
+import { duplicateMenuName, menuNotFound } from "../lib/errors";
 
 export class MenuModel {
   private readonly conn: PrismaClient;
@@ -37,15 +37,24 @@ export class MenuModel {
     owner_id: number,
     menu: CreateMenuInput
   ): Promise<MenuWithOwnerRating> {
-    return this.conn.menu.create({
-      data: {
-        ...menu,
-        owner: {
-          connect: { id: owner_id },
+    return this.conn.menu
+      .create({
+        data: {
+          ...menu,
+          owner: {
+            connect: { id: owner_id },
+          },
         },
-      },
-      include: { owner: true, reviews: { select: { rating: true } } },
-    });
+        include: { owner: true, reviews: { select: { rating: true } } },
+      })
+      .catch((e) =>
+        Promise.reject(
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+            e.code === "P2002"
+            ? duplicateMenuName()
+            : e
+        )
+      );
   }
 
   async getById(id: number): Promise<MenuWithOwnerRating | null> {
@@ -74,9 +83,14 @@ export class MenuModel {
         where: { id },
         include: { owner: true, reviews: { select: { rating: true } } },
       })
-      .catch(() => {
-        throw menuNotFound();
-      });
+      .catch((e) =>
+        Promise.reject(
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+            e.code === "P2002"
+            ? duplicateMenuName()
+            : e
+        )
+      );
   }
 
   async remove(id: number): Promise<void> {
