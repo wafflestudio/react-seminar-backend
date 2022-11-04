@@ -62,6 +62,11 @@ export const searchMenuOptionSchema = Type.Intersect([
         maxLength: 31,
       }),
       type: menuSchema.properties.type,
+      rating: Type.Integer({
+        minimum: 1,
+        maximum: 10,
+        description: "최소 별점",
+      }),
     })
   ),
 ]);
