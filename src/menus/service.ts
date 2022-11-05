@@ -21,11 +21,11 @@ export class MenuService {
     options: SearchMenuOption
   ): Promise<PaginationResponseType<MenuDto>> {
     const menus = await this.model.getMany(options);
-    const rating = options.rating ?? 0;
+    const rating = options.rating;
     return paginate(
       menus
         .map((menu) => menuToDto(menu))
-        .filter((menu) => menu.rating && menu.rating >= rating),
+        .filter((menu) => !rating || (menu.rating && menu.rating >= rating)),
       options.from ?? new Date().toISOString()
     );
   }
