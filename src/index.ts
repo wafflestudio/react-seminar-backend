@@ -99,7 +99,7 @@ async function main() {
   app.addSchema(reviewSchema);
   app.decorate("db", new PrismaClient());
   app.decorate("ownerModel", new OwnerModel(app.db));
-  app.decorate("tokenModel", new RefreshTokenModel(app.db));
+  app.decorate("tokenModel", new RefreshTokenModel(app.db, app.log));
   app.decorate("menuModel", new MenuModel(app.db));
   app.decorate("reviewModel", new ReviewModel(app.db));
   app.decorate("authService", new AuthService(app.ownerModel, app.tokenModel));
