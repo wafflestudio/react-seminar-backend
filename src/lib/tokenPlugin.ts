@@ -37,6 +37,7 @@ export const tokenPlugin = fp(async (instance) => {
         secure: true,
         sameSite: "none",
         expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+        path: "/auth",
       });
     }
   );
@@ -45,6 +46,7 @@ export const tokenPlugin = fp(async (instance) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      path: "/auth",
     });
   });
 });
