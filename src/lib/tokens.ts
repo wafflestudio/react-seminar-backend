@@ -6,18 +6,15 @@ import { accessTokenInvalid } from "./errors";
 export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours in ms
 export const REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day in ms
 interface AccessTokenPayload {
-  username: string;
+  username?: never;
   id: number;
 }
 
 export const REFRESH_TOKEN_KEY = "refresh_token";
 
-export const createAccessToken = async (
-  username: string,
-  id: number
-): Promise<string> =>
+export const createAccessToken = async (id: number): Promise<string> =>
   new Promise((resolve, reject) => {
-    const payload: AccessTokenPayload = { username, id };
+    const payload: AccessTokenPayload = { id };
     jsonwebtoken.sign(
       payload,
       JWT_SECRET,

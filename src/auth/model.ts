@@ -5,9 +5,11 @@ import { selectOne } from "../lib/utils";
 
 export class RefreshTokenModel {
   conn: PrismaClient;
+
   constructor(conn: PrismaClient) {
     this.conn = conn;
   }
+
   async insert(refresh_token: string, owner_id: number): Promise<void> {
     await this.conn.refreshToken.create({
       data: {
@@ -19,25 +21,35 @@ export class RefreshTokenModel {
   }
 
   async checkAndRemove(refresh_token: string, owner_id: number): Promise<void> {
-    const tokenEntity = selectOne(
-      await this.conn.refreshToken.findMany({
+    await this.conn.$transaction(async (tx) => {
+      const { count } = await tx.refreshToken.deleteMany({
         where: { token: refresh_token, owner_id },
-        select: { id: true },
-      })
-    );
-    if (!tokenEntity) throw refreshTokenInvalid();
-    await this.conn.refreshToken.delete({ where: { id: tokenEntity.id } });
+      });
+      if (count !== 1) throw refreshTokenInvalid();
+    });
   }
 
-  async remove(refresh_token: string): Promise<void> {
-    const tokenEntity = selectOne(
-      await this.conn.refreshToken.findMany({
-        where: { token: refresh_token },
-        select: { id: true },
-      })
-    );
-    if (!tokenEntity) throw refreshTokenInvalid();
-    await this.conn.refreshToken.delete({ where: { id: tokenEntity.id } });
+  async refreshAndGetOwnerId(
+    old_token: string,
+    new_token: string
+  ): Promise<number> {
+    return await this.conn.$transaction(async (tx) => {
+      const tokenEntity = selectOne(
+        await tx.refreshToken.findMany({
+          where: { token: old_token },
+          select: { id: true, owner_id: true },
+        })
+      );
+      if (!tokenEntity) throw refreshTokenInvalid();
+      await tx.refreshToken.update({
+        where: { id: tokenEntity.id },
+        data: {
+          token: new_token,
+          expiry: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+        },
+      });
+      return tokenEntity.owner_id;
+    });
   }
 
   async purge(): Promise<void> {
