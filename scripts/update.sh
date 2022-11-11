@@ -2,6 +2,7 @@ echo "$ yarn"
 yarn
 echo "$ prisma migrate deploy"
 npx prisma migrate deploy
+npx prisma generate
 echo "$ pm2 reload"
 pm2 reload 0
 echo "$ sleep"
