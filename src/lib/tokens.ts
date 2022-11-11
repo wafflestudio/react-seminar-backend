@@ -3,7 +3,7 @@ import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
 import { accessTokenInvalid } from "./errors";
 
-export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours in ms
+export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 10; // 10 minutes in ms
 export const REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day in ms
 interface AccessTokenPayload {
   username?: never;
