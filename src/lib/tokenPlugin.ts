@@ -14,10 +14,6 @@ declare module "fastify" {
   }
 }
 
-function extractDomain(origin?: string): string | undefined {
-  return origin ? origin.slice(origin.search("://") + 3) : undefined;
-}
-
 export const tokenPlugin = fp(async (instance) => {
   instance.decorateRequest("refreshToken", null);
   instance.addHook("preHandler", async (request) => {
@@ -42,7 +38,6 @@ export const tokenPlugin = fp(async (instance) => {
         sameSite: "none",
         expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
         path: "/auth",
-        domain: extractDomain(this.request.headers.origin),
       });
     }
   );
@@ -52,7 +47,6 @@ export const tokenPlugin = fp(async (instance) => {
       secure: true,
       sameSite: "none",
       path: "/auth",
-      domain: extractDomain(this.request.headers.origin),
     });
   });
 });
