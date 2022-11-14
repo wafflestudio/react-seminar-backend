@@ -43,7 +43,7 @@ export const menuSchema = Type.Object(
         examples: ["맛있는 전설이 깃든 와플"],
       })
     ),
-    rating: Type.Optional(Type.Number({ minimum: 1, maximum: 10 })),
+    rating: Nullable(Type.Number({ minimum: 1, maximum: 10 })),
     created_at: Type.String({ format: "date-time" }),
     updated_at: Type.String({ format: "date-time" }),
     owner: ownerRef,
@@ -96,7 +96,7 @@ export const menuToDto = (menu: MenuWithOwnerRating): MenuDto => {
   const rating = menu.reviews.length
     ? menu.reviews.reduce((sum, { rating }) => sum + rating, 0) /
       menu.reviews.length
-    : undefined;
+    : null;
   return {
     id: menu.id,
     owner: ownerToDto(menu.owner),

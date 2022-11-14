@@ -15,7 +15,7 @@ import { OwnerService } from "./owners/service";
 import { PrismaClient } from "@prisma/client";
 import { MenuModel } from "./menus/model";
 import { MenuService } from "./menus/service";
-import { ownerSchema } from "./owners/schema";
+import { ownerSchema, ownerWithRatingSchema } from "./owners/schema";
 import { menuSchema } from "./menus/schema";
 import { ReviewModel } from "./reviews/model";
 import { reviewSchema } from "./reviews/schema";
@@ -95,6 +95,7 @@ async function main() {
   ]);
 
   app.addSchema(ownerSchema);
+  app.addSchema(ownerWithRatingSchema);
   app.addSchema(menuSchema);
   app.addSchema(reviewSchema);
   app.decorate("db", new PrismaClient());

@@ -6,6 +6,7 @@ import {
   listOwnerSchema,
   ownerRef,
   ownerSchema,
+  ownerWithRatingRef,
   passwordSchema,
   updateOwnerSchema,
 } from "./schema";
@@ -23,7 +24,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           description:
             "모든 사장님의 목록을 가져옵니다. 참고로 사장님=사용자입니다.",
           querystring: listOwnerSchema,
-          response: { [OK]: Type.Array(ownerRef) },
+          response: { [OK]: Type.Array(ownerWithRatingRef) },
         },
       },
       async (request, reply) => {
@@ -40,7 +41,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           security: [bearerSecurity],
           response: {
             [OK]: Type.Object({
-              owner: ownerRef,
+              owner: ownerWithRatingRef,
             }),
           },
         },
@@ -63,7 +64,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           }),
           response: {
             [OK]: Type.Object({
-              owner: ownerRef,
+              owner: ownerWithRatingRef,
             }),
           },
         },

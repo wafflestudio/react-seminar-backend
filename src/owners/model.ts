@@ -1,16 +1,26 @@
 import { Owner, PrismaClient } from "@prisma/client";
 import { ownerNotFound } from "../lib/errors";
 import { selectOne } from "../lib/utils";
-import { CreateOwnerInput, ListOwnerInput, UpdateOwnerInput } from "./schema";
+import {
+  CreateOwnerInput,
+  ListOwnerInput,
+  OwnerWithRating,
+  UpdateOwnerInput,
+} from "./schema";
 
 export class OwnerModel {
   private readonly conn: PrismaClient;
+
   constructor(conn: PrismaClient) {
     this.conn = conn;
   }
-  async getById(id: number): Promise<Owner | null> {
+
+  async getById(id: number): Promise<OwnerWithRating | null> {
     return this.conn.owner.findUnique({
       where: { id },
+      include: {
+        menus: { include: { reviews: { select: { rating: true } } } },
+      },
     });
   }
 
@@ -66,8 +76,11 @@ export class OwnerModel {
     });
   }
 
-  async getMany(query: ListOwnerInput): Promise<Owner[]> {
+  async getMany(query: ListOwnerInput): Promise<OwnerWithRating[]> {
     return this.conn.owner.findMany({
+      include: {
+        menus: { include: { reviews: { select: { rating: true } } } },
+      },
       where: query.name
         ? {
             OR: [

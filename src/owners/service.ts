@@ -4,7 +4,9 @@ import { OwnerModel } from "./model";
 import {
   ListOwnerInput,
   OwnerDto,
+  OwnerDtoWithRating,
   ownerToDto,
+  ownerWithRatingToDto,
   UpdateOwnerInput,
 } from "./schema";
 
@@ -14,15 +16,15 @@ export class OwnerService {
     this.model = model;
   }
 
-  async getAll(query: ListOwnerInput): Promise<OwnerDto[]> {
+  async getAll(query: ListOwnerInput): Promise<OwnerDtoWithRating[]> {
     const owners = await this.model.getMany(query);
-    return owners.map((owner) => ownerToDto(owner));
+    return owners.map((owner) => ownerWithRatingToDto(owner));
   }
 
-  async getById(id: number): Promise<OwnerDto> {
+  async getById(id: number): Promise<OwnerDtoWithRating> {
     const owner = await this.model.getById(id);
     if (!owner) throw ownerNotFound();
-    return ownerToDto(owner);
+    return ownerWithRatingToDto(owner);
   }
 
   async updateStoreInfo(
@@ -39,10 +41,10 @@ export class OwnerService {
     await this.model.updatePassword(id, password);
   }
 
-  async getMyInfo(access_token: string): Promise<OwnerDto> {
+  async getMyInfo(access_token: string): Promise<OwnerDtoWithRating> {
     const { id } = await verifyAccessToken(access_token);
     const owner = await this.model.getById(id);
     if (!owner) throw ownerNotFound();
-    return ownerToDto(owner);
+    return ownerWithRatingToDto(owner);
   }
 }
