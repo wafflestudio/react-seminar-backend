@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { refreshTokenInvalid } from "../lib/errors";
 import { REFRESH_TOKEN_EXPIRATION } from "../lib/tokens";
 import { selectOne } from "../lib/utils";
+import { fromNow } from "../lib/timeUtil";
 
 export class RefreshTokenModel {
   conn: PrismaClient;
@@ -15,7 +16,7 @@ export class RefreshTokenModel {
       data: {
         token: refresh_token,
         owner_id,
-        expiry: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+        expiry: fromNow(REFRESH_TOKEN_EXPIRATION).toDate(),
       },
     });
   }
@@ -45,7 +46,7 @@ export class RefreshTokenModel {
         where: { id: tokenEntity.id },
         data: {
           token: new_token,
-          expiry: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+          expiry: fromNow(REFRESH_TOKEN_EXPIRATION).toDate(),
         },
       });
       return tokenEntity.owner_id;

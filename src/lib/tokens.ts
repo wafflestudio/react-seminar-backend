@@ -2,9 +2,10 @@ import { randomUUID } from "crypto";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "./env";
 import { accessTokenInvalid } from "./errors";
+import { makeDurationMs } from "./timeUtil";
 
-export const ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 10; // 10 minutes in ms
-export const REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24; // 1 day in ms
+export const ACCESS_TOKEN_EXPIRATION = makeDurationMs(10 * 60 * 1000); // 10 minutes in ms
+export const REFRESH_TOKEN_EXPIRATION = makeDurationMs(10 * 60 * 60 * 1000); // 1 day in ms
 interface AccessTokenPayload {
   username?: never;
   id: number;
@@ -19,7 +20,7 @@ export const createAccessToken = async (id: number): Promise<string> =>
       payload,
       JWT_SECRET,
       {
-        expiresIn: ACCESS_TOKEN_EXPIRATION,
+        expiresIn: ACCESS_TOKEN_EXPIRATION.asSeconds(),
       },
       (error, encoded) => (error || !encoded ? reject(error) : resolve(encoded))
     );
