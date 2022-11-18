@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import { accessTokenInvalid, accessTokenNotFound } from "./errors";
 import { REFRESH_TOKEN_EXPIRATION, REFRESH_TOKEN_KEY } from "./tokens";
+import { fromNow } from "./timeUtil";
 
 declare module "fastify" {
   interface FastifyReply {
@@ -36,7 +37,7 @@ export const tokenPlugin = fp(async (instance) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        expires: new Date(Date.now() + REFRESH_TOKEN_EXPIRATION),
+        expires: fromNow(REFRESH_TOKEN_EXPIRATION).toDate(),
         path: "/auth",
       });
     }
