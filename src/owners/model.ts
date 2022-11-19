@@ -37,10 +37,13 @@ export class OwnerModel {
     );
   }
 
-  async getByUsername(username: string): Promise<Owner | null> {
+  async getByUsername(username: string): Promise<OwnerWithRating | null> {
     return selectOne(
       await this.conn.owner.findMany({
         where: { username },
+        include: {
+          menus: { include: { reviews: { select: { rating: true } } } },
+        },
       })
     );
   }

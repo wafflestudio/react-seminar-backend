@@ -2,7 +2,11 @@ import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { refreshTokenNotFound } from "../lib/errors";
-import { ownerRef, ownerSchema, passwordSchema } from "../owners/schema";
+import {
+  ownerSchema,
+  ownerWithRatingRef,
+  passwordSchema,
+} from "../owners/schema";
 import { bearerSecurity } from "./schema";
 import { STATUS } from "../lib/utils";
 import {
@@ -19,14 +23,17 @@ const routes: FastifyPluginAsync = async (instance) => {
       {
         schema: {
           summary: "로그인",
-          description: `JWT 액세스 토큰과 리프레시 토큰을 생성합니다. 리프레시 토큰은 쿠키에 들어가요. 리프레시 토큰과 액세스 토큰은 각각 ${REFRESH_TOKEN_EXPIRATION.asMinutes()}, ${ACCESS_TOKEN_EXPIRATION.asMinutes()}분 후에 만료됩니다`,
+          description:
+            `JWT 액세스 토큰과 리프레시 토큰을 생성합니다. 리프레시 토큰은 쿠키에 들어가요.` +
+            `리프레시 토큰과 액세스 토큰은 각각 ${REFRESH_TOKEN_EXPIRATION.asMinutes()}, ` +
+            `${ACCESS_TOKEN_EXPIRATION.asMinutes()}분 후에 만료됩니다`,
           body: Type.Object({
             username: ownerSchema.properties.username,
             password: passwordSchema,
           }),
           response: {
             [OK]: Type.Object({
-              owner: ownerRef,
+              owner: ownerWithRatingRef,
               access_token: Type.String(),
             }),
           },
