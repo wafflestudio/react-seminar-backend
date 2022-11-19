@@ -1,3 +1,5 @@
+set -e
+
 echo "$ yarn"
 yarn
 echo "$ prisma migrate deploy"
