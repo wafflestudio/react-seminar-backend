@@ -27,7 +27,7 @@ export const tokenPlugin = fp(async (instance) => {
     const split = authorization.indexOf(" ");
     const schema = authorization.slice(0, split);
     const token = authorization.slice(split + 1).trim();
-    if (schema !== "Bearer") throw accessTokenInvalid();
+    if (schema.toLowerCase() !== "bearer") throw accessTokenInvalid();
     return token;
   });
   instance.decorateReply(
