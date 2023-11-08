@@ -14,22 +14,13 @@ export class MenuModel {
   }
 
   async getMany(option?: SearchMenuOption): Promise<MenuWithOwnerRating[]> {
-    const from = new Date(option?.from ?? Date.now());
-    const count = option?.count;
-    const type = option?.type;
     const search = option?.search;
-    const owner = option?.owner;
-    console.log("from=", option?.from);
     return this.conn.menu.findMany({
       where: {
-        created_at: { lt: from },
-        type,
         name: search ? { contains: search } : undefined,
-        owner_id: owner,
       },
       include: { owner: true, reviews: { select: { rating: true } } },
       orderBy: [{ created_at: "desc" }],
-      take: count,
     });
   }
 

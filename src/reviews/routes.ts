@@ -1,5 +1,4 @@
 import { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
-import { PaginationResponse } from "../lib/schema";
 import {
   createReviewSchema,
   reviewRef,
@@ -20,10 +19,10 @@ const routes: FastifyPluginAsyncTypebox = async (instance) => {
         schema: {
           summary: "리뷰 목록",
           description:
-            "리뷰의 목록을 가져옵니다. 메뉴 id를 반드시 지정해야 합니다",
+            "리뷰의 목록을 가져옵니다. 과자 id를 지정할 수 있습니다.",
           querystring: searchReviewSchema,
           response: {
-            [OK]: PaginationResponse(reviewRef),
+            [OK]: Type.Array(reviewRef),
           },
         },
       },

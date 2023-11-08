@@ -1,5 +1,4 @@
 import { notYourReview, reviewNotFound } from "../lib/errors";
-import { paginate, PaginationResponseType } from "../lib/schema";
 import { verifyAccessToken } from "../lib/tokens";
 import { ReviewModel } from "./model";
 import {
@@ -18,12 +17,9 @@ export class ReviewService {
 
   async list(
     options: SearchReviewInput
-  ): Promise<PaginationResponseType<ReviewDto>> {
+  ): Promise<ReviewDto[]> {
     const reviews = await this.model.list(options);
-    return paginate(
-      reviews.map((review) => reviewToDto(review)),
-      options.from ?? new Date().toISOString()
-    );
+    return reviews.map((review) => reviewToDto(review));
   }
 
   async getById(id: number): Promise<ReviewDto> {

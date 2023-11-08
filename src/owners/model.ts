@@ -3,9 +3,7 @@ import { ownerNotFound } from "../lib/errors";
 import { selectOne } from "../lib/utils";
 import {
   CreateOwnerInput,
-  ListOwnerInput,
   OwnerWithRating,
-  UpdateOwnerInput,
 } from "./schema";
 
 export class OwnerModel {
@@ -48,20 +46,6 @@ export class OwnerModel {
     );
   }
 
-  async updateStoreInfo(
-    id: number,
-    storeInfo: UpdateOwnerInput
-  ): Promise<Owner> {
-    return await this.conn.owner
-      .update({
-        where: { id },
-        data: storeInfo,
-      })
-      .catch(() => {
-        throw ownerNotFound();
-      });
-  }
-
   async updatePassword(id: number, password: string): Promise<void> {
     await this.conn.owner
       .update({
@@ -76,22 +60,6 @@ export class OwnerModel {
   async insertMany(inputs: CreateOwnerInput[]): Promise<void> {
     await this.conn.owner.createMany({
       data: inputs,
-    });
-  }
-
-  async getMany(query: ListOwnerInput): Promise<OwnerWithRating[]> {
-    return this.conn.owner.findMany({
-      include: {
-        menus: { include: { reviews: { select: { rating: true } } } },
-      },
-      where: query.name
-        ? {
-            OR: [
-              { store_name: { contains: query.name } },
-              { username: { contains: query.name } },
-            ],
-          }
-        : undefined,
     });
   }
 }
