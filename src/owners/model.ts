@@ -58,8 +58,14 @@ export class OwnerModel {
   }
 
   async insertMany(inputs: CreateOwnerInput[]): Promise<void> {
-    await this.conn.owner.createMany({
-      data: inputs,
-    });
+    if ("createMany" in this.conn.owner) {
+      await (this.conn.owner as any).createMany({
+        data: inputs,
+      });
+    } else {
+      await Promise.all(
+        inputs.map((input) => this.conn.owner.create({ data: input }))
+      );
+    }
   }
 }
