@@ -32,7 +32,7 @@ jobs:
         id: build-image
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-             --build-arg ARG_JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
+             --build-arg ARG_JWT_SECRET="${{ secrets.JWT_SECRET }}" \
              project-backend/.
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
