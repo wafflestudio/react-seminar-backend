@@ -48,7 +48,7 @@ async function main() {
       level: "debug",
     },
     https:
-      process.env.NODE_ENV === "development"
+      process.env.NODE_ENV === "development" && process.env.HTTPS === "true"
         ? {
             key: fs.readFileSync(
               path.resolve(__dirname, "../localhost-key.pem")

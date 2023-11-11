@@ -3,9 +3,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const KEYS = [
-  "MYSQL_USERNAME",
-  "MYSQL_PASSWORD",
-  "MYSQL_DATABASE",
   "JWT_SECRET"
 ] as const;
 type KeyType = (typeof KEYS)[number];
@@ -18,5 +15,5 @@ if (KVPS.some(([,v]) => v === undefined)) {
 const OBJ = Object.fromEntries(KVPS) as { [k in KeyType]: string };
 
 export const {
- MYSQL_PASSWORD, MYSQL_USERNAME, MYSQL_DATABASE, JWT_SECRET
+ JWT_SECRET
 } = OBJ;
