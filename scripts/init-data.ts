@@ -9,7 +9,7 @@ async function main() {
   await ownerModel.insertMany(
     students.map((student) => ({
       username: student.github_id,
-      password: student.github_id,
+      password: student.name,
     }))
   );
 }

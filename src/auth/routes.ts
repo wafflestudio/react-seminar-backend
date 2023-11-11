@@ -3,8 +3,8 @@ import { Type } from "@sinclair/typebox";
 import { FastifyPluginAsync } from "fastify";
 import { refreshTokenNotFound } from "../lib/errors";
 import {
+    ownerRef,
   ownerSchema,
-  ownerWithRatingRef,
   passwordSchema,
 } from "../owners/schema";
 import { bearerSecurity } from "./schema";
@@ -33,7 +33,7 @@ const routes: FastifyPluginAsync = async (instance) => {
           }),
           response: {
             [OK]: Type.Object({
-              owner: ownerWithRatingRef,
+              user: ownerRef,
               access_token: Type.String(),
             }),
           },
@@ -41,10 +41,10 @@ const routes: FastifyPluginAsync = async (instance) => {
       },
       async (request, reply) => {
         const { username, password } = request.body;
-        const { owner, access_token, refresh_token } =
+        const { user, access_token, refresh_token } =
           await instance.authService.login(username, password);
         return reply.withToken(refresh_token).send({
-          owner,
+          user,
           access_token,
         });
       }

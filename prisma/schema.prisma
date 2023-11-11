@@ -12,8 +12,6 @@ model Owner {
   id                Int       @id @default(autoincrement())
   username          String    @unique @db.VarChar(31)
   password          String    @db.VarChar(255)
-  store_name        String?   @db.VarChar(31)
-  store_description String?   @db.VarChar(255)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
@@ -24,19 +22,14 @@ model Owner {
 
 model Menu {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(31)
+  name        String    @db.VarChar(20) @unique
   owner_id    Int
-  type        MenuType
-  price       Int
-  image       String?   @db.VarChar(1023)
-  description String?   @db.VarChar(1023)
+  image       String   @db.VarChar(1023)
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
 
   owner   Owner    @relation(fields: [owner_id], references: [id])
   reviews Review[]
-
-  @@unique([name, owner_id])
 }
 
 model RefreshToken {
@@ -59,11 +52,4 @@ model Review {
 
   menu   Menu  @relation(fields: [menu_id], references: [id], onDelete: Cascade)
   author Owner @relation(fields: [author_id], references: [id])
-}
-
-enum MenuType {
-  waffle
-  beverage
-  coffee
-  dessert
 }

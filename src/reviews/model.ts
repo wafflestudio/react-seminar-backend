@@ -15,12 +15,9 @@ export class ReviewModel {
   }
 
   async list(req: SearchReviewInput): Promise<ReviewWithMenuAuthor[]> {
-    const from = new Date(req.from ?? Date.now());
-    const count = req.count;
-    const menu_id = req.menu;
+    const menu_id = req.snack;
     return this.conn.review.findMany({
       where: {
-        created_at: { lt: from },
         menu_id,
       },
       include: {
@@ -30,7 +27,6 @@ export class ReviewModel {
         author: true,
       },
       orderBy: [{ created_at: "desc" }],
-      take: count,
     });
   }
 
@@ -53,7 +49,7 @@ export class ReviewModel {
     return await this.conn.review.create({
       data: {
         content: data.content,
-        menu: { connect: { id: data.menu } },
+        menu: { connect: { id: data.snack } },
         rating: data.rating,
         author: { connect: { id: author_id } },
       },

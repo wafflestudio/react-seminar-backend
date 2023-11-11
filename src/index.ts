@@ -15,7 +15,7 @@ import { OwnerService } from "./owners/service";
 import { PrismaClient } from "@prisma/client";
 import { MenuModel } from "./menus/model";
 import { MenuService } from "./menus/service";
-import { ownerSchema, ownerWithRatingSchema } from "./owners/schema";
+import { ownerSchema } from "./owners/schema";
 import { menuSchema } from "./menus/schema";
 import { ReviewModel } from "./reviews/model";
 import { reviewSchema } from "./reviews/schema";
@@ -66,7 +66,8 @@ async function main() {
       openapi: {
         info: {
           title: "Wafl Studio API",
-          description: "와플스튜디오 2022 리액트 세미나 과제를 위한 백엔드",
+          description: "와플스튜디오 2023 리액트 세미나 과제를 위한 백엔드. " +
+            "2022 백엔드를 재탕했기 때문에 소스코드의 이름들이 살짝씩 엇나가 있는 것이 특징이다.",
           version: "1.0",
         },
         components: {
@@ -89,13 +90,12 @@ async function main() {
     app.register(fastifyCookie),
     app.register(tokenPlugin),
     app.register(authRoutes, { prefix: "/auth" }),
-    app.register(ownersRoutes, { prefix: "/owners" }),
-    app.register(menuRoutes, { prefix: "/menus" }),
+    app.register(ownersRoutes, { prefix: "/users" }),
+    app.register(menuRoutes, { prefix: "/snacks" }),
     app.register(reviewRoutes, { prefix: "/reviews" }),
   ]);
 
   app.addSchema(ownerSchema);
-  app.addSchema(ownerWithRatingSchema);
   app.addSchema(menuSchema);
   app.addSchema(reviewSchema);
   app.decorate("db", new PrismaClient());

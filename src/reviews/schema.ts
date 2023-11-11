@@ -1,5 +1,4 @@
 import { Static, Type } from "@sinclair/typebox";
-import { AtLeastOneProp, paginationRequest } from "../lib/schema";
 import {
   menuRef,
   menuSchema,
@@ -16,7 +15,7 @@ export const reviewSchema = Type.Object(
     rating: Type.Integer({ minimum: 1, maximum: 10 }),
     created_at: Type.String({ format: "date-time" }),
     updated_at: Type.String({ format: "date-time" }),
-    menu: menuRef,
+    snack: menuRef,
     author: ownerRef,
   },
   { $id: "Review" }
@@ -25,22 +24,19 @@ export const reviewSchema = Type.Object(
 export const createReviewSchema = Type.Object({
   content: reviewSchema.properties.content,
   rating: reviewSchema.properties.rating,
-  menu: menuSchema.properties.id,
+  snack: menuSchema.properties.id,
 });
 
-export const updateReviewSchema = AtLeastOneProp(
+export const updateReviewSchema =
   Type.Object({
     content: reviewSchema.properties.content,
-    rating: reviewSchema.properties.rating,
+  });
+
+export const searchReviewSchema = Type.Partial(
+  Type.Object({
+    snack: menuSchema.properties.id,
   })
 );
-
-export const searchReviewSchema = Type.Intersect([
-  paginationRequest,
-  Type.Object({
-    menu: menuSchema.properties.id,
-  }),
-]);
 
 export const reviewRef = Type.Ref(reviewSchema);
 
@@ -59,6 +55,6 @@ export const reviewToDto = (review: ReviewWithMenuAuthor): ReviewDto => ({
   rating: review.rating,
   created_at: review.created_at.toISOString(),
   updated_at: review.updated_at.toISOString(),
-  menu: menuToDto(review.menu),
+  snack: menuToDto(review.menu),
   author: ownerToDto(review.author),
 });

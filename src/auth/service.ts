@@ -5,11 +5,11 @@ import {
   verifyAccessToken,
 } from "../lib/tokens";
 import { OwnerModel } from "../owners/model";
-import { OwnerDtoWithRating, ownerWithRatingToDto } from "../owners/schema";
+import { OwnerDto, ownerToDto } from "../owners/schema";
 import { RefreshTokenModel } from "./model";
 
 interface LoginResult {
-  owner: OwnerDtoWithRating;
+  user: OwnerDto;
   access_token: string;
   refresh_token: string;
 }
@@ -34,7 +34,7 @@ export class AuthService {
     return {
       access_token,
       refresh_token,
-      owner: ownerWithRatingToDto(owner),
+      user: ownerToDto(owner),
     };
   }
 
