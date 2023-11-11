@@ -1,4 +1,6 @@
-# 2022-assignment-backend
+# React Seminar Backend
+
+2022년 만들어 2023년에 살짝 고쳐 쓰는 리액트 세미나 과제 백엔드.
 
 ## `.env` example
 ```dotenv
