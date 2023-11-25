@@ -94,8 +94,10 @@ export class ReviewModel {
         id: review_id,
       },
       select: { author_id: true },
-      rejectOnNotFound: () => reviewNotFound(),
     });
+    if (!review) {
+      throw reviewNotFound();
+    }
     return review.author_id === author_id;
   }
 }
