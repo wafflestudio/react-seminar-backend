@@ -24,4 +24,4 @@ RUN npx prisma generate
 RUN yarn build
 RUN service mysql start && npx prisma migrate deploy
 RUN service mysql start && yarn init-data
-CMD mysqld & yarn start
+CMD service mysql start && yarn start
