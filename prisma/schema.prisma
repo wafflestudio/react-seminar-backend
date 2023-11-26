@@ -4,14 +4,14 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = "mysql://waffle:waffle@localhost:3306/waffle"
+  provider = "sqlite"
+  url      = "file:./dev.db?connection_limit=1"
 }
 
 model Owner {
   id                Int       @id @default(autoincrement())
-  username          String    @unique @db.VarChar(31)
-  password          String    @db.VarChar(255)
+  username          String    @unique 
+  password          String    
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
@@ -22,9 +22,9 @@ model Owner {
 
 model Menu {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(20) @unique
+  name        String     @unique
   owner_id    Int
-  image       String   @db.VarChar(1023)
+  image       String   
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
 
@@ -34,7 +34,7 @@ model Menu {
 
 model RefreshToken {
   id       Int      @id @default(autoincrement())
-  token    String   @db.VarChar(100)
+  token    String   
   owner_id Int
   expiry   DateTime
 
@@ -45,7 +45,7 @@ model Review {
   id         Int      @id @default(autoincrement())
   menu_id    Int
   author_id  Int
-  content    String   @db.VarChar(1023)
+  content    String   
   rating     Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
