@@ -7,6 +7,7 @@ COPY . .
 RUN yarn
 RUN npx prisma generate
 RUN yarn build
+RUN mkdir -p /app/storage
 RUN npx prisma migrate deploy
 RUN yarn init-data
 CMD ["yarn", "start"]
