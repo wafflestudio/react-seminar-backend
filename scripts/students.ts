@@ -14,6 +14,7 @@ const students: Student[] = [
   { name: "최재웅", github_id: "JwChoi-kr" },
   { name: "허유민", github_id: "Yumin22224" },
   { name: "안중원", github_id: "joongwon" },
+  { name: "우현민", github_id: "woohm402" },
 ];
 
 export default students;
