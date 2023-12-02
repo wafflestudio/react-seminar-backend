@@ -6,17 +6,21 @@ import "../src/lib/env";
 async function main() {
   const conn = new PrismaClient();
   const n = await conn.owner.findMany().then((owners) => owners.length);
-  if (n > 0) {
-    console.log("Already initialized");
-    return;
+  for (const student of students) {
+    try {
+      await conn.owner.create({
+        data: {
+          username: student.github_id,
+          password: student.name,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    console.log("waiting for 1 second...");
+    new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  const ownerModel = new OwnerModel(conn);
-  await ownerModel.insertMany(
-    students.map((student) => ({
-      username: student.github_id,
-      password: student.name,
-    }))
-  );
+  console.log("done");
 }
 
 main()

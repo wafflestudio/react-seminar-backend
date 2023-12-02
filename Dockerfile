@@ -13,4 +13,4 @@ RUN yarn build
 RUN mkdir -p /app/storage
 # RUN npx prisma migrate deploy
 # RUN yarn init-data
-CMD npx prisma migrate deploy && yarn init-data && yarn start
+CMD yarn start
