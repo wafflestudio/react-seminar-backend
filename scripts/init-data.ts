@@ -15,10 +15,11 @@ async function main() {
         },
       });
     } catch (e) {
+      // may fail if the user already exists
       console.log(e);
     }
-    console.log("waiting for 1 second...");
-    new Promise((resolve) => setTimeout(resolve, 1000));
+    // console.log("waiting for 1 second...");
+    // new Promise((resolve) => setTimeout(resolve, 1000));
   }
   console.log("done");
 }
